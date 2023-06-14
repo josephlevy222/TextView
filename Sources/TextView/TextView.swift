@@ -42,7 +42,7 @@ public struct TextView: UIViewRepresentable {
     public class Coordinator: NSObject, UITextViewDelegate {
         var text: Binding<AttributedString>
         
-        init(_ text: Binding<AttributedString>) {
+        public init(_ text: Binding<AttributedString>) {
             self.text = text
         }
         
