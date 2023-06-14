@@ -8,6 +8,11 @@
 import SwiftUI
 
 public struct TextView: UIViewRepresentable {
+    public init(attributedText: Binding<AttributedString>, allowsEditingTextAttributes: Bool = false) {
+        self._attributedText = attributedText
+        self.allowsEditingTextAttributes = allowsEditingTextAttributes
+    }
+    
     
     @Binding public var attributedText: AttributedString
     @State public var allowsEditingTextAttributes: Bool = false
