@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-struct TextView: UIViewRepresentable {
+public struct TextView: UIViewRepresentable {
     
-    @Binding var attributedText: AttributedString
-    @State var allowsEditingTextAttributes: Bool = false
+    @Binding public var attributedText: AttributedString
+    @State public var allowsEditingTextAttributes: Bool = false
     
     let defaultFont = UIFont.preferredFont(forTextStyle: .body)
     
-    func makeUIView(context: Context) -> UITextView {
+    public func makeUIView(context: Context) -> UITextView {
         let uiView = MyTextView()
         uiView.font = defaultFont
         //uiView.typingAttributes = [.font : defaultFont ]
@@ -26,22 +26,22 @@ struct TextView: UIViewRepresentable {
         return uiView
     }
     
-    func updateUIView(_ uiView: UITextView, context: Context) {
+    public func updateUIView(_ uiView: UITextView, context: Context) {
         uiView.attributedText = attributedText.nsAttributedString
     }
     
-    func makeCoordinator() -> TextView.Coordinator {
+    public func makeCoordinator() -> TextView.Coordinator {
         Coordinator($attributedText)
     }
     
-    class Coordinator: NSObject, UITextViewDelegate {
+    public class Coordinator: NSObject, UITextViewDelegate {
         var text: Binding<AttributedString>
         
         init(_ text: Binding<AttributedString>) {
             self.text = text
         }
         
-        func textViewDidChange(_ textView: UITextView) {
+        public func textViewDidChange(_ textView: UITextView) {
             self.text.wrappedValue = textView.attributedText.attributedString
         }
     }
