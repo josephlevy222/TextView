@@ -26,6 +26,7 @@ public struct TextView: UIViewRepresentable {
         uiView.allowsEditingTextAttributes = allowsEditingTextAttributes
         uiView.textContainerInset = .zero
         uiView.contentInset = UIEdgeInsets()
+        
         uiView.delegate = context.coordinator
         uiView.attributedText = attributedText.nsAttributedString
         return uiView
@@ -60,6 +61,7 @@ public struct TextView: UIViewRepresentable {
             builder.remove(menu: .share) // Remove Share
             //builder.remove(menu: .textStyle) // Keep Format
             // Add new .textStyle actions
+            
             let strikethroughAction = UIAction(title: "Strikethough") { action in
                 self.toggleStrikethrough(action.sender)
             }
@@ -69,8 +71,14 @@ public struct TextView: UIViewRepresentable {
             let superscriptAction = UIAction(image: UIImage(systemName: "textformat.superscript")) { action in
                 self.toggleSuperscript(action.sender)
             }
-            builder.replaceChildren(ofMenu: .textStyle)  {
-                var children = $0
+            
+            builder.replaceChildren(ofMenu: .textStyle)  { elements in
+                var children = elements
+                if(children.isEmpty) { print("No children for textStyle found.")
+                    //children.append(boldAction)
+                    //children.append(italicAction)
+                    //children.append(underlineAction)
+                }
                 children.append(strikethroughAction)
                 children.append(subscriptAction)
                 children.append(superscriptAction)
