@@ -72,12 +72,27 @@ public struct TextView: UIViewRepresentable {
                 self.toggleSuperscript(action.sender)
             }
             
+            let boldAction = UIAction(title: "Bold") { action in
+                self.toggleBoldface(action.sender)
+            }
+            
+            let italicAction = UIAction(title: "Italic")  { action in
+                self.toggleItalics(action.sender)
+            }
+            
+            let underlineAction = UIAction(title: "Underline") { action in
+                self.toggleUnderline(action.sender)
+            }
+            
             builder.replaceChildren(ofMenu: .textStyle)  { elements in
                 var children = elements
+                if !children.contains(boldAction) { children.append(boldAction) }
+                if !children.contains(italicAction) { children.append(italicAction)}
+                if !children.contains(underlineAction) { children.append(underlineAction)}
                 if(children.isEmpty) { print("No children for textStyle found.")
-                    //children.append(boldAction)
-                    //children.append(italicAction)
-                    //children.append(underlineAction)
+                    children.append(boldAction)
+                    children.append(italicAction)
+                    children.append(underlineAction)
                 }
                 children.append(strikethroughAction)
                 children.append(subscriptAction)
