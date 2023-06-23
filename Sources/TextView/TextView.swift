@@ -103,7 +103,7 @@ public struct TextView: UIViewRepresentable {
                 let menuController = UIMenuController.shared
                 print("Action:",action.description)
                 if var menuItems = menuController.menuItems,
-                   menuItems[0].title == "Bold" && menuItems.count < 6 {
+                   menuItems[0].action == .toggleBoldface && menuItems.count < 6 {
                     menuItems.append(UIMenuItem(title: "Subscript", action: .toggleSubscript))
                     menuItems.append(UIMenuItem(title: "Superscript", action: .toggleSuperscript))
                     menuItems.append(UIMenuItem(title: "Strikethrough", action: .toggleStrikethrough))
