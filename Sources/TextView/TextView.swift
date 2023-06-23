@@ -97,26 +97,26 @@ public struct TextView: UIViewRepresentable {
             super.buildMenu(with: builder)
         }
         
-//        // This is needed for iOS 15
-//        open override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
-//            if #unavailable(iOS 16.0) {
-//                let menuController = UIMenuController.shared
-//                if var menuItems = menuController.menuItems,
-//                   menuItems[0].title == "Bold" && menuItems.count < 6 {
-//                    menuItems.append(UIMenuItem(title: "Subscript", action: .toggleSubscript))
-//                    menuItems.append(UIMenuItem(title: "Superscript", action: .toggleSuperscript))
-//                    menuItems.append(UIMenuItem(title: "Strikethrough", action: .toggleStrikethrough))
-//                    menuController.menuItems = menuItems
-//                }
-//                // Get rid of menu item not wanted
-//                if action.description.contains("_share") // Share
-//                    || action.description.contains("_translate") // Translate
-//                    || action.description.contains("_define") { // Blocks Lookup
-//                    return false
-//                }
-//            }
-//            return super.canPerformAction(action, withSender: sender)
-//        }
+        // This is needed for iOS 15
+        open override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+            if #unavailable(iOS 16.0) {
+                let menuController = UIMenuController.shared
+                if var menuItems = menuController.menuItems,
+                   menuItems[0].title == "Bold" && menuItems.count < 6 {
+                    menuItems.append(UIMenuItem(title: "Subscript", action: .toggleSubscript))
+                    menuItems.append(UIMenuItem(title: "Superscript", action: .toggleSuperscript))
+                    menuItems.append(UIMenuItem(title: "Strikethrough", action: .toggleStrikethrough))
+                    menuController.menuItems = menuItems
+                }
+                // Get rid of menu item not wanted
+                if action.description.contains("_share") // Share
+                    || action.description.contains("_translate") // Translate
+                    || action.description.contains("_define") { // Blocks Lookup
+                    return false
+                }
+            }
+            return super.canPerformAction(action, withSender: sender)
+        }
         
         private func updateAttributedText(with attributedString: NSAttributedString) {
             attributedText = attributedString
@@ -256,7 +256,7 @@ public struct TextView: UIViewRepresentable {
 }
 
 
-fileprivate extension Selector {
+public extension Selector {
     static let toggleBoldface = #selector(TextView.MyTextView.toggleBoldface(_:))
     static let toggleItalics = #selector(TextView.MyTextView.toggleItalics(_:))
     static let toggleUnderline = #selector(TextView.MyTextView.toggleUnderline(_:))
