@@ -17,14 +17,14 @@ import SwiftUI
 // Conversion code for SwiftUI.Font to UIFont and AttributedString to
 // NSAttributedString Starts here
 extension UIFont {
-    convenience init(font: Font, traitCollection: UITraitCollection? = nil) {
+    public convenience init(font: Font, traitCollection: UITraitCollection? = nil) {
         if let uiFont = resolveFont(font) { self.init(descriptor: uiFont.fontDescriptor(with: traitCollection), size: 0)}
         else { self.init() }
     }
 }
 
 extension NSAttributedString {
-    var attributedString : AttributedString {
+    public var attributedString : AttributedString {
         let attributedText = self
         var returnValue = {
             do { return try AttributedString(attributedText, including: \.uiKit) }
@@ -44,9 +44,9 @@ extension NSAttributedString {
 
 extension AttributedString {
     
-    var nsAttributedString : NSAttributedString { convertToUIAttributes() }
+    public var nsAttributedString : NSAttributedString { convertToUIAttributes() }
     
-    func convertToUIAttributes(traitCollection: UITraitCollection? = nil) -> NSMutableAttributedString {
+    public func convertToUIAttributes(traitCollection: UITraitCollection? = nil) -> NSMutableAttributedString {
         let nsAttributedString = NSMutableAttributedString(self)
         for run in runs {
             let nsRange = NSRange(run.range, in: self[run.range])
@@ -98,9 +98,9 @@ extension AttributedString {
 /// AttributedString(styledMarkdown: String, fonts: [Font]) puts fonts into Headers 1-6
 /// and setFont for SwiftUI.Font, along with setBold, and setItalic that work with SwiftUI.Font and UIFont
 /// embedded in the attributed string
-fileprivate let defaultHeaderFonts: [Font.TextStyle] = [.body,.largeTitle,.title,.title2,.title3,.headline,.subheadline]
+public let defaultHeaderFonts: [Font.TextStyle] = [.body,.largeTitle,.title,.title2,.title3,.headline,.subheadline]
 extension AttributedString {
-    init(styledMarkdown markdownString: String,
+    public init(styledMarkdown markdownString: String,
          fontStyles: [Font.TextStyle] = defaultHeaderFonts,
          insertCR: Bool = true) throws {
         var output = try AttributedString(
@@ -135,13 +135,13 @@ extension AttributedString {
         self = output
     }
     
-    func setFont(to: Font) -> AttributedString {
+    public func setFont(to: Font) -> AttributedString {
         var a = self
         a.font = to
         return a
     }
     
-    func setBold() -> AttributedString {
+    public func setBold() -> AttributedString {
         var newAS = self
         for run in runs {
             if let uiFont = NSAttributedString(AttributedString(self[run.range]))
@@ -160,7 +160,7 @@ extension AttributedString {
         return newAS
     }
     
-    func setItalic() -> AttributedString { //Still setItalic
+    public func setItalic() -> AttributedString { //Still setItalic
         var newAS = self
         for run in runs {
             if let uiFont = NSAttributedString(AttributedString(self[run.range]))
@@ -180,7 +180,7 @@ extension AttributedString {
     }
     
     
-    func resetBold() -> AttributedString { //Still setBold
+    public func resetBold() -> AttributedString { //Still setBold
         var newAS = self
         for run in runs {
             if let uiFont = NSAttributedString(AttributedString(self[run.range]))
@@ -199,7 +199,7 @@ extension AttributedString {
         return newAS
     }
     
-    func resetItalic() -> AttributedString {
+    public func resetItalic() -> AttributedString {
         var newAS = self
         for run in runs {
             if let uiFont = NSAttributedString(AttributedString(self[run.range]))
@@ -230,18 +230,18 @@ extension String {
 }
 
 extension UIFontDescriptor {
-    func withWeight(_ weight: UIFont.Weight?) -> UIFontDescriptor {
+    public func withWeight(_ weight: UIFont.Weight?) -> UIFontDescriptor {
         if let weight { return addingAttributes([.traits: [UIFontDescriptor.TraitKey.weight: weight]])} else { return self }
     }
-    func withWidth(_ width: UIFont.Width?) -> UIFontDescriptor {
+    public func withWidth(_ width: UIFont.Width?) -> UIFontDescriptor {
         if let width { return addingAttributes([.traits: [UIFontDescriptor.TraitKey.width: width]]) } else { return self }
     }
-    var weight: UIFont.Weight { // nil means no weight trait is set
+    public var weight: UIFont.Weight { // nil means no weight trait is set
         let traits = object(forKey: .traits) as? [UIFontDescriptor.TraitKey: Any] ?? [:]
         guard let weightNumber = traits[.weight] as? NSNumber else { return .regular }
         return UIFont.Weight(rawValue: weightNumber.doubleValue)
     }
-    var width: UIFont.Width {
+    public var width: UIFont.Width {
         let traits = object(forKey: .traits) as? [UIFontDescriptor.TraitKey: Any] ?? [:]
         guard let widthNumber = traits[.width] as? NSNumber else { return .init(0) }
         return UIFont.Width(rawValue: widthNumber.doubleValue)
@@ -250,36 +250,36 @@ extension UIFontDescriptor {
 
 extension UIFont {
     // get font weight
-    var weight: UIFont.Weight? { fontDescriptor.weight }
+    public var weight: UIFont.Weight? { fontDescriptor.weight }
     // get font width
-    var width: UIFont.Width { fontDescriptor.width }
+    public var width: UIFont.Width { fontDescriptor.width }
     
     // Add bold trait
-    func bold() -> UIFont? {
+    public func bold() -> UIFont? {
         guard let newDescriptor = fontDescriptor.withSymbolicTraits(fontDescriptor.symbolicTraits.union(.traitBold))
         else { return nil }
         return UIFont(descriptor: newDescriptor.withWidth(width), size: pointSize)
     }
     
     // Add italic trait
-    func italic() -> UIFont? {
+    public func italic() -> UIFont? {
         guard let newDescriptor = fontDescriptor.withSymbolicTraits(fontDescriptor.symbolicTraits.union(.traitItalic))
         else { return nil }
         return UIFont(descriptor: newDescriptor.withWeight(weight).withWidth(width), size: pointSize)
     }
     
-    func withWeight(_ weight: UIFont.Weight?) -> UIFont {
+    public func withWeight(_ weight: UIFont.Weight?) -> UIFont {
         guard let weight else { return self }
         return UIFont(descriptor: fontDescriptor.withWeight(weight), size: pointSize)
     }
     
-    func withWidth(_ width: UIFont.Width?) -> UIFont {
+    public func withWidth(_ width: UIFont.Width?) -> UIFont {
         guard let width else { return self }
         return UIFont(descriptor: fontDescriptor.withWidth(width), size: pointSize)
     }
     
     // Return UIFont.TextStyle from SwiftUI.Font.TextStyle
-    class func preferredFontStyle(from: Font.TextStyle) -> UIFont.TextStyle  {
+    public class func preferredFontStyle(from: Font.TextStyle) -> UIFont.TextStyle  {
         let uiStyleOfFontStyle : [Font.TextStyle : UIFont.TextStyle] = [
             .largeTitle : .largeTitle, .title : .title1, .title2 : .title2,
             .title3 : .title3, .headline : .headline, .callout : .callout,
