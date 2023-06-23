@@ -101,6 +101,7 @@ public struct TextView: UIViewRepresentable {
         // This is needed for iOS 15
         open override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
             if #unavailable(iOS 16.0) {
+                let menuController = UIMenuController.shared
                 print("Action:",action.description)
                 // Get rid of menu item not wanted
                 if action.description.contains("_share") // Share
@@ -108,22 +109,8 @@ public struct TextView: UIViewRepresentable {
                     || action.description.contains("_define") { // Blocks Lookup
                     return false
                 }
-                let menuController = UIMenuController.shared
-                var menuItems = menuController.menuItems ?? [UIMenuItem]()
-                if action.description.contains("Bold") { print("Bold found")
-                    if menuItems.isEmpty {
-                        menuItems.append(UIMenuItem(title: "Bold", action: .toggleBoldface))
-                        menuItems.append(UIMenuItem(title: "Italic", action: .toggleItalics))
-                        menuItems.append(UIMenuItem(title: "Underline", action: .toggleUnderline))
-                        menuItems.append(UIMenuItem(title: "Subscript", action: .toggleSubscript))
-                        menuItems.append(UIMenuItem(title: "Superscript", action: .toggleSuperscript))
-                        menuItems.append(UIMenuItem(title: "Strikethrough", action: .toggleStrikethrough))
-                        menuController.menuItems = menuItems
-                    }
-                }
             }
             return super.canPerformAction(action, withSender: sender)
-            
         }
         
         private func updateAttributedText(with attributedString: NSAttributedString) {
