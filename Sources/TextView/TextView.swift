@@ -256,7 +256,7 @@ public struct TextView: UIViewRepresentable {
 }
 
 
-public extension Selector {
+fileprivate extension Selector {
     static let toggleBoldface = #selector(TextView.MyTextView.toggleBoldface(_:))
     static let toggleItalics = #selector(TextView.MyTextView.toggleItalics(_:))
     static let toggleUnderline = #selector(TextView.MyTextView.toggleUnderline(_:))

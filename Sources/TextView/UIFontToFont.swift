@@ -220,7 +220,7 @@ extension AttributedString {
 }
 
 extension String {
-    func markdownToAttributed() -> AttributedString {
+    public func markdownToAttributed() -> AttributedString {
         do {
             return try AttributedString(styledMarkdown: self)
         } catch {
