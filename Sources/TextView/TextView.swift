@@ -101,6 +101,7 @@ public struct TextView: UIViewRepresentable {
         open override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
             if #unavailable(iOS 16.0) {
                 let menuController = UIMenuController.shared
+                print("Action:",action.description)
                 if var menuItems = menuController.menuItems,
                    menuItems[0].title == "Bold" && menuItems.count < 6 {
                     menuItems.append(UIMenuItem(title: "Subscript", action: .toggleSubscript))
