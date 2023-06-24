@@ -102,14 +102,14 @@ public struct TextView: UIViewRepresentable {
             if #unavailable(iOS 16.0) {
                 let menuController = UIMenuController.shared
                 print("Action:",action.description)
-                //if
-                var menuItems = menuController.menuItems
-                //, menuItems[0].action == .toggleBoldface && menuItems.count < 6 {
-                    menuItems?.append(UIMenuItem(title: "Subscript", action: .toggleSubscript))
-                    menuItems?.append(UIMenuItem(title: "Superscript", action: .toggleSuperscript))
-                    menuItems?.append(UIMenuItem(title: "Strikethrough", action: .toggleStrikethrough))
+                if var menuItems = menuController.menuItems
+                    , menuItems[0].title == "Bold" { print("Bold found")
+                
+                    menuItems.append(UIMenuItem(title: "Subscript", action: .toggleSubscript))
+                    menuItems.append(UIMenuItem(title: "Superscript", action: .toggleSuperscript))
+                    menuItems.append(UIMenuItem(title: "Strikethrough", action: .toggleStrikethrough))
                     menuController.menuItems = menuItems
-                //}
+                }
                 // Get rid of menu item not wanted
                 if action.description.contains("_share") // Share
                     || action.description.contains("_translate") // Translate
