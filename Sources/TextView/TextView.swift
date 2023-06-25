@@ -103,7 +103,7 @@ public struct TextView: UIViewRepresentable {
                 let menuController = UIMenuController.shared
                 print("Action:",action.description)
                 if var menuItems = menuController.menuItems
-                    , menuItems[0].title == "Cut" { print("Cut found")
+                    , menuItems[0].description.contains("cut") { print("Cut found")
                 
                     menuItems.append(UIMenuItem(title: "Subscript", action: .toggleSubscript))
                     menuItems.append(UIMenuItem(title: "Superscript", action: .toggleSuperscript))
