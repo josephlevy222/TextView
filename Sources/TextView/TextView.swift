@@ -99,25 +99,23 @@ public struct TextView: UIViewRepresentable {
         
         // This is needed for iOS 15
         open override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
-            //if #unavailable(iOS 16.0) {
-                let menuController = UIMenuController.shared
-            guard var menuItems = menuController.menuItems  else { return super.canPerformAction(action, withSender: sender) }
-            print("Action:",action.description)
-            print("MenuItems",menuItems)
-                if action.description.contains("cut") { print("Cut found")
-                    
-                    menuItems.append(UIMenuItem(title: "Subscript", action: .toggleSubscript))
-                    menuItems.append(UIMenuItem(title: "Superscript", action: .toggleSuperscript))
-                    menuItems.append(UIMenuItem(title: "Strikethrough", action: .toggleStrikethrough))
-                    menuController.menuItems = menuItems
-                }
+            if #unavailable(iOS 16.0) {
+                print("Action:",action.description)
                 // Get rid of menu item not wanted
                 if action.description.contains("_share") // Share
                     || action.description.contains("_translate") // Translate
                     || action.description.contains("_define") { // Blocks Lookup
                     return false
                 }
-            //}
+                let menuController = UIMenuController.shared
+                var menuItems = menuController.menuItems ?? [UIMenuItem]()
+                if action.description.contains("cut") { print("Cut found") 
+                    menuItems.append(UIMenuItem(title: "Subscript", action: .toggleSubscript))
+                    menuItems.append(UIMenuItem(title: "Superscript", action: .toggleSuperscript))
+                    menuItems.append(UIMenuItem(title: "Strikethrough", action: .toggleStrikethrough))
+                    menuController.menuItems = menuItems
+                }
+            }
             return super.canPerformAction(action, withSender: sender)
         }
         
