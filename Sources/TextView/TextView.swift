@@ -109,14 +109,20 @@ public struct TextView: UIViewRepresentable {
                 }
                 let menuController = UIMenuController.shared
                 var menuItems = menuController.menuItems ?? [UIMenuItem]()
-                if action.description.contains("Bold") { print("Bold found") 
-                    menuItems.append(UIMenuItem(title: "Subscript", action: .toggleSubscript))
-                    menuItems.append(UIMenuItem(title: "Superscript", action: .toggleSuperscript))
-                    menuItems.append(UIMenuItem(title: "Strikethrough", action: .toggleStrikethrough))
-                    menuController.menuItems = menuItems
+                if action.description.contains("Bold") { print("Bold found")
+                    if menuItems.isEmpty {
+                        menuItems.append(UIMenuItem(title: "Bold", action: .toggleBoldface))
+                        menuItems.append(UIMenuItem(title: "Italic", action: .toggleItalics))
+                        menuItems.append(UIMenuItem(title: "Underline", action: .toggleUnderline))
+                        menuItems.append(UIMenuItem(title: "Subscript", action: .toggleSubscript))
+                        menuItems.append(UIMenuItem(title: "Superscript", action: .toggleSuperscript))
+                        menuItems.append(UIMenuItem(title: "Strikethrough", action: .toggleStrikethrough))
+                        menuController.menuItems = menuItems
+                    }
                 }
             }
             return super.canPerformAction(action, withSender: sender)
+            
         }
         
         private func updateAttributedText(with attributedString: NSAttributedString) {
