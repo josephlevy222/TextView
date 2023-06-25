@@ -87,9 +87,6 @@ public struct TextView: UIViewRepresentable {
             
             builder.replaceChildren(ofMenu: .textStyle)  { elements in
                 var children = elements
-                if !children.contains(boldAction) { children.append(boldAction) }
-                if !children.contains(italicAction) { children.append(italicAction)}
-                if !children.contains(underlineAction) { children.append(underlineAction)}
                 children.append(strikethroughAction)
                 children.append(subscriptAction)
                 children.append(superscriptAction)
