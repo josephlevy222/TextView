@@ -101,10 +101,11 @@ public struct TextView: UIViewRepresentable {
         open override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
             //if #unavailable(iOS 16.0) {
                 let menuController = UIMenuController.shared
+            guard var menuItems = menuController.menuItems  else { return super.canPerformAction(action, withSender: sender) }
             print("Action:",action.description)
-                if var menuItems = menuController.menuItems
-                    , action.description.contains("cut") { print("Cut found")
-                
+            print("MenuItems",menuItems)
+                if action.description.contains("cut") { print("Cut found")
+                    
                     menuItems.append(UIMenuItem(title: "Subscript", action: .toggleSubscript))
                     menuItems.append(UIMenuItem(title: "Superscript", action: .toggleSuperscript))
                     menuItems.append(UIMenuItem(title: "Strikethrough", action: .toggleStrikethrough))
