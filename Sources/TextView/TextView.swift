@@ -73,18 +73,6 @@ public struct TextView: UIViewRepresentable {
                 self.toggleSuperscript(action.sender)
             }
             
-            let boldAction = UIAction(title: "Bold") { action in
-                self.toggleBoldface(action.sender)
-            }
-            
-            let italicAction = UIAction(title: "Italic")  { action in
-                self.toggleItalics(action.sender)
-            }
-            
-            let underlineAction = UIAction(title: "Underline") { action in
-                self.toggleUnderline(action.sender)
-            }
-            
             builder.replaceChildren(ofMenu: .textStyle)  { elements in
                 var children = elements
                 children.append(strikethroughAction)
@@ -102,9 +90,9 @@ public struct TextView: UIViewRepresentable {
                 print("Action:",action.description)
                 if var menuItems = menuController.menuItems,
                    menuItems[0].title == "Bold" && menuItems.count < 6 {
+                    menuItems.append(UIMenuItem(title: "Strikethrough", action: .toggleStrikethrough))
                     menuItems.append(UIMenuItem(title: "Subscript", action: .toggleSubscript))
                     menuItems.append(UIMenuItem(title: "Superscript", action: .toggleSuperscript))
-                    menuItems.append(UIMenuItem(title: "Strikethrough", action: .toggleStrikethrough))
                     menuController.menuItems = menuItems
                 }
                 // Get rid of menu item not wanted
