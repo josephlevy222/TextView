@@ -15,7 +15,7 @@ public struct TextView: UIViewRepresentable {
     
     
     @Binding public var attributedText: AttributedString
-    @State public var allowsEditingTextAttributes: Bool = false
+    public var allowsEditingTextAttributes: Bool 
     
     let defaultFont = UIFont.preferredFont(forTextStyle: .body)
     
@@ -45,6 +45,7 @@ public struct TextView: UIViewRepresentable {
         
         public init(_ text: Binding<AttributedString>) {
             self.text = text
+            
         }
         
         public func textViewDidChange(_ textView: UITextView) {
