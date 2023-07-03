@@ -11,6 +11,7 @@ public struct TextView: UIViewRepresentable {
     public init(attributedText: Binding<AttributedString>, allowsEditingTextAttributes: Bool = false) {
         self._attributedText = attributedText
         self.allowsEditingTextAttributes = allowsEditingTextAttributes
+        self.attributedText = attributedText.wrappedValue.convertToUIAttributes().attributedString
     }
     
     
