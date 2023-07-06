@@ -67,10 +67,10 @@ public struct TextView: UIViewRepresentable {
             let strikethroughAction = UIAction(title: "Strikethough") { action in
                 self.toggleStrikethrough(action.sender)
             }
-            let subscriptAction = UIAction(image: UIImage(systemName: "textformat.subscript")) { action in
+            let subscriptAction = UIAction(title: "Subscript", image: UIImage(systemName: "textformat.subscript")) { action in
                 self.toggleSubscript(action.sender)
             }
-            let superscriptAction = UIAction(image: UIImage(systemName: "textformat.superscript")) { action in
+            let superscriptAction = UIAction(title: "Superscript", image: UIImage(systemName: "textformat.superscript")) { action in
                 self.toggleSuperscript(action.sender)
             }
             
