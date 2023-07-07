@@ -67,13 +67,21 @@ public struct TextView: UIViewRepresentable {
             let strikethroughAction = UIAction(title: "Strikethough") { action in
                 self.toggleStrikethrough(action.sender)
             }
+            #if targetEnvironment(macCatalyst)
             let subscriptAction = UIAction(title: "Subscript", image: UIImage(systemName: "textformat.subscript")) { action in
                 self.toggleSubscript(action.sender)
             }
             let superscriptAction = UIAction(title: "Superscript", image: UIImage(systemName: "textformat.superscript")) { action in
                 self.toggleSuperscript(action.sender)
             }
-            
+            #else
+            let subscriptAction = UIAction(image: UIImage(systemName: "textformat.subscript")) { action in
+                self.toggleSubscript(action.sender)
+            }
+            let superscriptAction = UIAction(image: UIImage(systemName: "textformat.superscript")) { action in
+                self.toggleSuperscript(action.sender)
+            }
+            #endif
             builder.replaceChildren(ofMenu: .textStyle)  { elements in
                 var children = elements
                 children.append(strikethroughAction)
