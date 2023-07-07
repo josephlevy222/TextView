@@ -34,7 +34,7 @@ extension NSAttributedString {
             let nsAttributes = NSAttributedString(AttributedString(returnValue[run.range]))
                 .attributes(at: 0, effectiveRange: nil)
             debugPrint(String(returnValue[run.range].characters))
-            nsAttributes.forEach { debugPrint($0,":",$1)}
+            //nsAttributes.forEach { debugPrint($0,":",$1)}
             if let uiFont = nsAttributes[.font] as? UIFont {
                 returnValue[run.range].font = nil
                 returnValue[run.range].font = uiFont
