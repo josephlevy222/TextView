@@ -15,6 +15,7 @@ public struct TextView: UIViewRepresentable {
     }
     
     
+    //debugPrint(String(returnValue[run.range].characters))
     @Binding public var attributedText: AttributedString
     public var allowsEditingTextAttributes: Bool 
     
@@ -27,7 +28,7 @@ public struct TextView: UIViewRepresentable {
         uiView.allowsEditingTextAttributes = allowsEditingTextAttributes
         uiView.textContainerInset = .zero
         uiView.contentInset = UIEdgeInsets()
-        
+        uiView.textAlignment = .center // like Text
         uiView.delegate = context.coordinator
         uiView.attributedText = attributedText.nsAttributedString
         return uiView
