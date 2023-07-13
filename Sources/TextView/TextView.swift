@@ -27,10 +27,10 @@ public struct TextView: UIViewRepresentable {
         //uiView.typingAttributes = [.font : defaultFont ]
         uiView.allowsEditingTextAttributes = allowsEditingTextAttributes
         uiView.textContainerInset = .zero
-        uiView.contentInset = UIEdgeInsets(); debugPrint("TextView inset \(uiView.contentInset)")
+        uiView.contentInset = UIEdgeInsets()
         uiView.textAlignment = .center // like Text
-        uiView.contentInsetAdjustmentBehavior = .never
-        uiView.usesStandardTextScaling = true
+        //uiView.contentInsetAdjustmentBehavior = .always // .never or .automatic
+        //uiView.usesStandardTextScaling = true
         uiView.delegate = context.coordinator
         uiView.attributedText = attributedText.nsAttributedString
         return uiView
