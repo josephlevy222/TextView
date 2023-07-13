@@ -29,7 +29,7 @@ public struct TextView: UIViewRepresentable {
         uiView.textContainerInset = .zero
         uiView.contentInset = .zero
         uiView.textAlignment = .center // like Text
-        uiView.contentInsetAdjustmentBehavior = .never
+        uiView.contentInsetAdjustmentBehavior = .always
         uiView.delegate = context.coordinator
         uiView.attributedText = attributedText.nsAttributedString
         return uiView
