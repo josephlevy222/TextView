@@ -27,7 +27,7 @@ public struct TextView: UIViewRepresentable {
         //uiView.typingAttributes = [.font : defaultFont ]
         uiView.allowsEditingTextAttributes = allowsEditingTextAttributes
         uiView.textContainerInset = .zero
-        uiView.contentInset = .zero
+        uiView.contentInset = UIEdgeInsets(); debugPrint("TextView inset \(uiView.contentInset)")
         uiView.textAlignment = .center // like Text
         uiView.contentInsetAdjustmentBehavior = .never
         uiView.usesStandardTextScaling = true
