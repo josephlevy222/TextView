@@ -60,13 +60,17 @@ public struct TextView: UIViewRepresentable {
     class MyTextView: UITextView {
         // This works in iOS 16 but never called in 15 I believe
         open override func buildMenu(with builder: UIMenuBuilder) {
-            builder.remove(menu: .lookup) // Lookup, Translate, Search Web
+            builder.remove(menu: .lookup) // Remove Lookup, Translate, Search Web
             //builder.remove(menu: .standardEdit) // Keep Cut, Copy, Paste
             //builder.remove(menu: .replace) // Keep Replace
             builder.remove(menu: .share) // Remove Share
             //builder.remove(menu: .textStyle) // Keep Format
             // Add new .textStyle actions
-            
+            #if !macCatalyst
+            let fontAction = UIAction(title: "Font") { action in
+                self.changeFont(action.sender)
+            }
+            #endif
             let strikethroughAction = UIAction(title: "Strikethough") { action in
                 self.toggleStrikethrough(action.sender)
             }
@@ -87,6 +91,8 @@ public struct TextView: UIViewRepresentable {
             #endif
             builder.replaceChildren(ofMenu: .textStyle)  { elements in
                 var children = elements
+                children.append(fontAction)
+                children.move(fromOffsets: IndexSet([3]), toOffset: 0)
                 children.append(strikethroughAction)
                 children.append(subscriptAction)
                 children.append(superscriptAction)
@@ -204,6 +210,9 @@ public struct TextView: UIViewRepresentable {
         
         @objc func toggleSuperscript(_ sender: Any?) { toggleScript(sender, sub: false) }
         
+        @objc func changeFont(_ sender: Any?) {
+            
+        }
         private func toggleScript(_ sender: Any?, sub: Bool = false) {
             let newOffset = sub ? -0.3 : 0.4
             let attributedString = NSMutableAttributedString(attributedString: attributedText)
