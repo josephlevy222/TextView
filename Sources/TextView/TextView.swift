@@ -6,14 +6,27 @@
 //  Working for iOS 15 and 16 3/8/23
 
 import SwiftUI
-
+public struct TextViewWithPopover : View {
+    @Binding public var attributedText: AttributedString
+    public var allowsEditingTextAttributes = false
+    @StateObject var fontDesigner = FontDesigner.preview
+    public var body: some View {
+        TextView(attributedText: $attributedText, allowsEditingTextAttributes: allowsEditingTextAttributes, fontDesigner: fontDesigner)
+            .popover(isPresented: $fontDesigner.isPresented) {
+                FontDesignerView(fontDesigner: fontDesigner)
+            }
+    }
+}
+    
 public struct TextView: UIViewRepresentable {
-    public init(attributedText: Binding<AttributedString>, allowsEditingTextAttributes: Bool = false) {
+    public init(attributedText: Binding<AttributedString>, allowsEditingTextAttributes: Bool, fontDesigner: FontDesigner) {
         self._attributedText = attributedText
         self.allowsEditingTextAttributes = allowsEditingTextAttributes
+        self.fontDesigner = fontDesigner
         self.attributedText = attributedText.wrappedValue.convertToUIAttributes().attributedString
     }
     
+    @ObservedObject private var fontDesigner : FontDesigner
     
     //debugPrint(String(returnValue[run.range].characters))
     @Binding public var attributedText: AttributedString
@@ -22,7 +35,7 @@ public struct TextView: UIViewRepresentable {
     let defaultFont = UIFont.preferredFont(forTextStyle: .body)
     
     public func makeUIView(context: Context) -> UITextView {
-        let uiView = MyTextView()
+        let uiView = MyTextView(changeFont)
         uiView.font = defaultFont
         //uiView.typingAttributes = [.font : defaultFont ]
         uiView.allowsEditingTextAttributes = allowsEditingTextAttributes
@@ -57,7 +70,21 @@ public struct TextView: UIViewRepresentable {
         }
     }
     
+    func changeFont(_ sender: Any?) {
+        fontDesigner.isPresented = true
+    }
+    
     class MyTextView: UITextView {
+        internal init(_ changeFont: @escaping (_ : Any?) -> Void ) {
+            self.changeFont = changeFont
+            super.init(frame: .zero, textContainer: nil)
+        }
+
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        var changeFont : (_: Any?) -> Void
         // This works in iOS 16 but never called in 15 I believe
         open override func buildMenu(with builder: UIMenuBuilder) {
             builder.remove(menu: .lookup) // Remove Lookup, Translate, Search Web
@@ -126,7 +153,7 @@ public struct TextView: UIViewRepresentable {
             attributedText = attributedString
             if let update = delegate?.textViewDidChange { update(self) }
         }
-        
+        @objc func changeFontFunc(_ sender: Any?) { self.changeFont(sender)}
         @objc func toggleStrikethrough(_ sender: Any?) {
             let attributedString = NSMutableAttributedString(attributedString: attributedText)
             var isAllStrikethrough = true
@@ -210,9 +237,6 @@ public struct TextView: UIViewRepresentable {
         
         @objc func toggleSuperscript(_ sender: Any?) { toggleScript(sender, sub: false) }
         
-        @objc func changeFont(_ sender: Any?) {
-            
-        }
         private func toggleScript(_ sender: Any?, sub: Bool = false) {
             let newOffset = sub ? -0.3 : 0.4
             let attributedString = NSMutableAttributedString(attributedString: attributedText)
@@ -270,6 +294,7 @@ fileprivate extension Selector {
     static let toggleStrikethrough = #selector(TextView.MyTextView.toggleStrikethrough(_:))
     static let toggleSubscript = #selector(TextView.MyTextView.toggleSubscript(_:))
     static let toggleSuperscript = #selector(TextView.MyTextView.toggleSuperscript(_:))
+    static let changeFont = #selector(TextView.MyTextView.changeFontFunc(_:))
 }
 
 
