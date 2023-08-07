@@ -8,7 +8,7 @@
 import SwiftUI
 public struct TextViewWithPopover : View {
     public init(attributedText: Binding<AttributedString>, allowsEditingTextAttributes: Bool = false, fontDesigner: FontDesigner = FontDesigner()) {
-        _attributedText = Binding(projectedValue: attributedText)
+        _attributedText =  attributedText
         self.allowsEditingTextAttributes = allowsEditingTextAttributes
         _fontDesigner = StateObject(wrappedValue: fontDesigner)
     }
@@ -32,7 +32,7 @@ public struct TextView: UIViewRepresentable {
         self.attributedText = attributedText.wrappedValue.convertToUIAttributes().attributedString
     }
     
-    @ObservedObject private var fontDesigner : FontDesigner
+    @ObservedObject public var fontDesigner : FontDesigner
     
     //debugPrint(String(returnValue[run.range].characters))
     @Binding public var attributedText: AttributedString
