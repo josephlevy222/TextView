@@ -8,7 +8,7 @@
 import SwiftUI
 public struct TextViewWithPopover : View {
     @Binding public var attributedText: AttributedString
-    public var allowsEditingTextAttributes = false 
+    public var allowsEditingTextAttributes = false
     @StateObject public var fontDesigner = FontDesigner.preview
     public var body: some View {
         TextView(attributedText: $attributedText, allowsEditingTextAttributes: allowsEditingTextAttributes, fontDesigner: fontDesigner)
@@ -70,7 +70,7 @@ public struct TextView: UIViewRepresentable {
         }
     }
     
-    func changeFont(_ sender: Any?) {
+    public func changeFont(_ sender: Any?) {
         fontDesigner.isPresented = true
     }
     

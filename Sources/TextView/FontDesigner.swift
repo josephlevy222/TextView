@@ -45,7 +45,7 @@ final public class FontDesigner: ObservableObject {
                 self?.updatePreviewText()
                 guard let fontName = newValue?.postscriptName else { return }
                   
-                self?.displayedFontName = "\(fontName)" //String(format: NSLocalizedString("\(fontName)", comment: ""))
+                self?.displayedFontName = "\(fontName)" 
                 self?.updatePreviewText()
             }
             .store(in: &subscriptions)
