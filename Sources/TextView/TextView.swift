@@ -8,8 +8,8 @@
 import SwiftUI
 public struct TextViewWithPopover : View {
     @Binding public var attributedText: AttributedString
-    public var allowsEditingTextAttributes = false
-    @StateObject var fontDesigner = FontDesigner.preview
+    public var allowsEditingTextAttributes = false 
+    @StateObject public var fontDesigner = FontDesigner.preview
     public var body: some View {
         TextView(attributedText: $attributedText, allowsEditingTextAttributes: allowsEditingTextAttributes, fontDesigner: fontDesigner)
             .popover(isPresented: $fontDesigner.isPresented) {
