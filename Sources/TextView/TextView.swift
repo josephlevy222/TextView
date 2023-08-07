@@ -85,6 +85,7 @@ public struct TextView: UIViewRepresentable {
         }
 
         var changeFont : (_: Any?) -> Void
+        
         // This works in iOS 16 but never called in 15 I believe
         open override func buildMenu(with builder: UIMenuBuilder) {
             builder.remove(menu: .lookup) // Remove Lookup, Translate, Search Web
@@ -93,11 +94,7 @@ public struct TextView: UIViewRepresentable {
             builder.remove(menu: .share) // Remove Share
             //builder.remove(menu: .textStyle) // Keep Format
             // Add new .textStyle actions
-            #if !macCatalyst
-            let fontAction = UIAction(title: "Font") { action in
-                self.changeFont(action.sender)
-            }
-            #endif
+    
             let strikethroughAction = UIAction(title: "Strikethough") { action in
                 self.toggleStrikethrough(action.sender)
             }
@@ -115,11 +112,15 @@ public struct TextView: UIViewRepresentable {
             let superscriptAction = UIAction(image: UIImage(systemName: "textformat.superscript")) { action in
                 self.toggleSuperscript(action.sender)
             }
+            let fontAction = UIAction(title: "Font") { action in
+                    self.changeFont(action.sender)
+            }
             #endif
             builder.replaceChildren(ofMenu: .textStyle)  { elements in
                 var children = elements
-                children.append(fontAction)
-                children.move(fromOffsets: IndexSet([3]), toOffset: 0)
+                #if !targetEnvironment(macCatalyst)
+                children.insert(fontAction,at: 0)
+                #endif
                 children.append(strikethroughAction)
                 children.append(subscriptAction)
                 children.append(superscriptAction)
@@ -154,6 +155,7 @@ public struct TextView: UIViewRepresentable {
             if let update = delegate?.textViewDidChange { update(self) }
         }
         @objc func changeFontFunc(_ sender: Any?) { self.changeFont(sender)}
+        
         @objc func toggleStrikethrough(_ sender: Any?) {
             let attributedString = NSMutableAttributedString(attributedString: attributedText)
             var isAllStrikethrough = true

@@ -12,7 +12,8 @@ let package = Package(
             name: "TextView",
             targets: ["TextView"]),
     ],
-    dependencies: [
+    dependencies: [.package(url: "https://github.com/GeorgeElsham/ViewExtractor", .upToNextMajor(from: "2.0.0")),
+                   .package(url: "https://github.com/josephlevy222/Utilities.git", branch: "main")
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
     ],
@@ -21,7 +22,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "TextView",
-            dependencies: []),
+            dependencies: ["ViewExtractor", "Utilities"]),
         .testTarget(
             name: "TextViewTests",
             dependencies: ["TextView"]),

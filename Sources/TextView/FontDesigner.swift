@@ -88,12 +88,9 @@ extension FontDesigner {
         designer.fontSize = 17
         designer.fontColor = UIColor.black.cgColor
         designer.backgroundColor = UIColor.white.cgColor
-        designer.fontDescriptor = UIFontDescriptor(name: "SFUI", size: 25)
+        designer.fontDescriptor = UIFont.systemFont(ofSize: designer.fontSize).fontDescriptor
         
         return designer
     }()
-    
-    @State static var show = false
-        
     
 }

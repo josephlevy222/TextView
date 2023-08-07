@@ -21,7 +21,7 @@ struct SystemFontList : View {
         VStack(alignment: .leading) {
             Text("System Font (SF)").padding(.leading).padding(.top)
                 .onTapGesture {
-                    fontDesigner.fontDescriptor = UIFontDescriptor(name: "SFUI", size: fontDesigner.fontSize)
+                    fontDesigner.fontDescriptor = UIFont.systemFont(ofSize: fontDesigner.fontSize).fontDescriptor
                     fontDesigner.isFontPickerActive = false
                 }
             FontListView(fontDesigner: fontDesigner)
