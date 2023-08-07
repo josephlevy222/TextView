@@ -83,7 +83,7 @@ final public class FontDesigner: ObservableObject {
 
 extension FontDesigner {
     /// Some preview data
-    static let preview: FontDesigner = {
+    static public let preview: FontDesigner = {
         let designer = FontDesigner()
         designer.fontSize = 17
         designer.fontColor = UIColor.black.cgColor
