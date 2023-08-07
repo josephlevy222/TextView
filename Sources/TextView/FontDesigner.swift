@@ -37,7 +37,7 @@ final public class FontDesigner: ObservableObject {
     private var subscriptions: Set<AnyCancellable> = []
     
     /// Initialisation
-    init() {
+    public init() {
         $fontDescriptor
             .removeDuplicates()
             .receive(on: RunLoop.main)
