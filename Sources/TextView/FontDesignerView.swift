@@ -14,7 +14,7 @@ extension View {
 }
 // A small view to pick a UIFont, set a font color and a font size.
 /// There is also a preview included
-struct FontDesignerView: View {
+public struct FontDesignerView: View {
     
     /// The view model
     @ObservedObject var fontDesigner: FontDesigner
@@ -27,7 +27,7 @@ struct FontDesignerView: View {
     let maximumFontSize: CGFloat = 100
     
     /// The body of the view
-    var body: some View {
+    public var body: some View {
         SizingList {
             SizingSection("Preview") {
                 Text(fontDesigner.previewText)

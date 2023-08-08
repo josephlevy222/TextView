@@ -19,6 +19,7 @@ public struct TextViewWithPopover : View {
     public var body: some View {
         TextView(attributedText: $attributedText, allowsEditingTextAttributes: allowsEditingTextAttributes, fontDesigner: fontDesigner)
             .popover(isPresented: $fontDesigner.isPresented) {
+                
                 FontDesignerView(fontDesigner: fontDesigner)
             }
     }
@@ -60,23 +61,52 @@ public struct TextView: UIViewRepresentable {
     }
     
     public func makeCoordinator() -> TextView.Coordinator {
-        Coordinator($attributedText)
+        Coordinator($attributedText, fontDesigner: fontDesigner)
     }
     
     public class Coordinator: NSObject, UITextViewDelegate {
         var text: Binding<AttributedString>
-        
-        public init(_ text: Binding<AttributedString>) {
+        var fontDesigner: FontDesigner
+        public init(_ text: Binding<AttributedString>, fontDesigner: FontDesigner ) {
             self.text = text
-            
+            self.fontDesigner = fontDesigner
         }
-        
+
         public func textViewDidChange(_ textView: UITextView) {
             self.text.wrappedValue = textView.attributedText.attributedString
+        }
+        
+        public func textViewDidChangeSelection(_ textView: UITextView) {
+            let selection = textView.selectedRange
+            textView.attributedText.enumerateAttribute(.font, in: selection) { (value, range, stopFlag)  in
+                if range == selection {
+                    // All the same font set fontDesigner font to it
+                    let font =  value as? UIFont ?? UIFont.preferredFont(forTextStyle: .body)
+                    fontDesigner.fontDescriptor = font.fontDescriptor
+                    fontDesigner.fontSize = font.pointSize
+                } else {
+                    fontDesigner.fontDescriptor = UIFont.preferredFont(forTextStyle: .body).fontDescriptor
+                    fontDesigner.fontSize = UIFont.preferredFont(forTextStyle: .body).pointSize
+                }
+                stopFlag.pointee = true
+            }
+            textView.attributedText.enumerateAttribute(.backgroundColor, in: selection)  { (value, range, stopFlag)  in
+                if range == selection {
+                    fontDesigner.backgroundColor = value as! CGColor
+                } else { fontDesigner.backgroundColor = UIColor.white as! CGColor }
+                stopFlag.pointee = true
+            }
+            textView.attributedText.enumerateAttribute(.foregroundColor, in: selection)  { (value, range, stopFlag)  in
+                if range == selection {
+                    fontDesigner.fontColor = value as! CGColor
+                } else { fontDesigner.fontColor = UIColor.black as! CGColor }
+                stopFlag.pointee = true
+            }
         }
     }
     
     public func changeFont(_ sender: Any?) {
+    
         fontDesigner.isPresented = true
     }
     
