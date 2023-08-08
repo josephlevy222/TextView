@@ -79,7 +79,7 @@ public struct TextView: UIViewRepresentable {
         public func textViewDidChangeSelection(_ textView: UITextView) {
             let selection = textView.selectedRange
             textView.attributedText.enumerateAttribute(.font, in: selection) { (value, range, stopFlag)  in
-                if range == selection {
+                if let value, range == selection {
                     // All the same font set fontDesigner font to it
                     let font =  value as? UIFont ?? UIFont.preferredFont(forTextStyle: .body)
                     fontDesigner.fontDescriptor = font.fontDescriptor
@@ -91,13 +91,13 @@ public struct TextView: UIViewRepresentable {
                 stopFlag.pointee = true
             }
             textView.attributedText.enumerateAttribute(.backgroundColor, in: selection)  { (value, range, stopFlag)  in
-                if range == selection {
+                if let value, range == selection {
                     fontDesigner.backgroundColor = (value as? UIColor ?? UIColor.white) as! CGColor
                 } else { fontDesigner.backgroundColor = UIColor.white as! CGColor }
                 stopFlag.pointee = true
             }
             textView.attributedText.enumerateAttribute(.foregroundColor, in: selection)  { (value, range, stopFlag)  in
-                if range == selection {
+                if let value, range == selection {
                     fontDesigner.fontColor = (value as? UIColor ?? UIColor.white) as! CGColor
                 } else { fontDesigner.fontColor = UIColor.black as! CGColor }
                 stopFlag.pointee = true
