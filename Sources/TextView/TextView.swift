@@ -4,6 +4,7 @@
 //
 //  Created by Joseph Levy on 1/31/23.
 //  Working for iOS 15 and 16 3/8/23
+//  Popover for font in iOS added 8/9/23
 
 import SwiftUI
 public struct TextViewWithPopover : View {
@@ -32,13 +33,11 @@ public struct TextView: UIViewRepresentable {
         self._attributedText = attributedText
         self.allowsEditingTextAttributes = allowsEditingTextAttributes
         self.fontDesigner = fontDesigner
-        self.popover = vc.popoverPresentationController!
         self.attributedText = attributedText.wrappedValue.convertToUIAttributes().attributedString
     }
     
     @ObservedObject public var fontDesigner : FontDesigner
-    let vc =  UIHostingController(rootView: FontDesignerView(fontDesigner: FontDesigner()))
-    let popover : UIPopoverPresentationController
+
     //debugPrint(String(returnValue[run.range].characters))
     @Binding public var attributedText: AttributedString
     public var allowsEditingTextAttributes: Bool 
@@ -46,7 +45,7 @@ public struct TextView: UIViewRepresentable {
     let defaultFont = UIFont.preferredFont(forTextStyle: .body)
     
     public func makeUIView(context: Context) -> UITextView {
-        let uiView = MyTextView()// changeFont
+        let uiView = MyTextView(fontDesigner: fontDesigner)// changeFont
         uiView.font = defaultFont
         //uiView.typingAttributes = [.font : defaultFont ]
         uiView.allowsEditingTextAttributes = allowsEditingTextAttributes
@@ -57,11 +56,7 @@ public struct TextView: UIViewRepresentable {
         //uiView.usesStandardTextScaling = true
         uiView.delegate = context.coordinator
         uiView.attributedText = attributedText.nsAttributedString
-        let vc = UIHostingController(rootView: FontDesignerView(fontDesigner: fontDesigner))
-        vc.modalPresentationStyle = .popover
-        popover.sourceView = uiView
-        
-        //uiView.inputViewController?.present(vc, animated: true)
+
         return uiView
     }
     
@@ -70,17 +65,17 @@ public struct TextView: UIViewRepresentable {
     }
     
     public func makeCoordinator() -> TextView.Coordinator {
-        Coordinator($attributedText, fontDesigner: fontDesigner, popover: popover)
+        Coordinator($attributedText, fontDesigner: fontDesigner)
     }
     
     public class Coordinator: NSObject, UITextViewDelegate {
         var text: Binding<AttributedString>
         var fontDesigner: FontDesigner
-        var popover: UIPopoverPresentationController
-        public init(_ text: Binding<AttributedString>, fontDesigner: FontDesigner, popover: UIPopoverPresentationController ) {
+        //var popover: UIPopoverPresentationController =
+        public init(_ text: Binding<AttributedString>, fontDesigner: FontDesigner ) {
             self.text = text
             self.fontDesigner = fontDesigner
-            self.popover = popover
+            //.popover = popover
         }
 
         public func textViewDidChange(_ textView: UITextView) {
@@ -117,42 +112,44 @@ public struct TextView: UIViewRepresentable {
                 } else { fontDesigner.fontColor = CGColor.init(gray: 0, alpha: 1)  }
                 stopFlag.pointee = true
             }
- 
-            let range = textView.selectedTextRange
-            let beginningOfSelection = textView.caretRect(for: (range?.start)!)
-            let endOfSelection = textView.caretRect(for: (range?.end)!)
-            popover.sourceRect = CGRect(x: (beginningOfSelection.origin.x + endOfSelection.origin.x)/2,
-                                        y: (beginningOfSelection.origin.y + beginningOfSelection.size.height)/2,
-                                        width: 0, height: 0)
         }
         
-    }
-    
-    public func changeFont(_ sender: Any?) {
-        fontDesigner.isPresented = true
-       
     }
     
     class MyTextView: UITextView {
-        
-        internal init()  {//_ changeFont: @escaping (_ : Any?) -> Void  ) {
-            vc.modalPresentationStyle = .popover
-            popover = vc.popoverPresentationController!
-            super.init(frame: .zero, textContainer: nil)
-            popover.sourceView = self
+        internal init(fontDesigner: FontDesigner) {
+            self.fontDesigner = fontDesigner
+            super.init()
         }
-
+        
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }
-        let fontDesigner = FontDesigner()
-        var vc = UIHostingController(rootView: FontDesignerView(fontDesigner: FontDesigner()))
-        let popover : UIPopoverPresentationController
-        var changeFont : ((_: Any?) -> Void)  {{ _  in
-            self.vc.present(self.vc, animated: true) {
+        
+        let fontDesigner : FontDesigner
+        lazy var vc = {
+            let vc = UIHostingController(rootView: FontDesignerView(fontDesigner: fontDesigner))
+            vc.modalPresentationStyle = .popover
+            return vc
+        }()
+        lazy var  popover : UIPopoverPresentationController = {
+            let popover = vc.popoverPresentationController!
+            popover.sourceView = self
+            return popover
+        }()
+        
+        func changeFont(_ sender: Any?) -> Void  {
+            let range = selectedTextRange
+            let beginningOfSelection = caretRect(for: (range?.start)!)
+            let endOfSelection = caretRect(for: (range?.end)!)
+            popover.sourceRect = CGRect(x: (beginningOfSelection.origin.x + endOfSelection.origin.x)/2,
+                                        y: (beginningOfSelection.origin.y + beginningOfSelection.size.height)/2,
+                                        width: 0, height: 0)
+            vc.present(vc, animated: true) {
                 // completion handler
+                print("Completed changeFont")
             }
-        }}
+        }
         
         // This works in iOS 16 but never called in 15 I believe
         open override func buildMenu(with builder: UIMenuBuilder) {
