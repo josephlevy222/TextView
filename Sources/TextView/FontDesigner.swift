@@ -47,6 +47,7 @@ final public class FontDesigner: ObservableObject {
                   
                 self?.displayedFontName = "\(fontName)" 
                 self?.updatePreviewText()
+                
             }
             .store(in: &subscriptions)
         

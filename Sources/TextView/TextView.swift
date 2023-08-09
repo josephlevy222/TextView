@@ -19,8 +19,10 @@ public struct TextViewWithPopover : View {
     public var body: some View {
         TextView(attributedText: $attributedText, allowsEditingTextAttributes: allowsEditingTextAttributes, fontDesigner: fontDesigner)
             .popover(isPresented: $fontDesigner.isPresented) {
-                
-                FontDesignerView(fontDesigner: fontDesigner)
+                let _ = print("Font Design Shown")
+                FontDesignerView(fontDesigner: fontDesigner).onDisappear {
+                    print("Font Designer Disappeared")
+                }
             }
     }
 }
@@ -30,11 +32,13 @@ public struct TextView: UIViewRepresentable {
         self._attributedText = attributedText
         self.allowsEditingTextAttributes = allowsEditingTextAttributes
         self.fontDesigner = fontDesigner
+        self.popover = vc.popoverPresentationController!
         self.attributedText = attributedText.wrappedValue.convertToUIAttributes().attributedString
     }
     
     @ObservedObject public var fontDesigner : FontDesigner
-    
+    let vc =  UIHostingController(rootView: FontDesignerView(fontDesigner: FontDesigner()))
+    let popover : UIPopoverPresentationController
     //debugPrint(String(returnValue[run.range].characters))
     @Binding public var attributedText: AttributedString
     public var allowsEditingTextAttributes: Bool 
@@ -42,7 +46,7 @@ public struct TextView: UIViewRepresentable {
     let defaultFont = UIFont.preferredFont(forTextStyle: .body)
     
     public func makeUIView(context: Context) -> UITextView {
-        let uiView = MyTextView(changeFont)
+        let uiView = MyTextView()// changeFont
         uiView.font = defaultFont
         //uiView.typingAttributes = [.font : defaultFont ]
         uiView.allowsEditingTextAttributes = allowsEditingTextAttributes
@@ -53,6 +57,11 @@ public struct TextView: UIViewRepresentable {
         //uiView.usesStandardTextScaling = true
         uiView.delegate = context.coordinator
         uiView.attributedText = attributedText.nsAttributedString
+        let vc = UIHostingController(rootView: FontDesignerView(fontDesigner: fontDesigner))
+        vc.modalPresentationStyle = .popover
+        popover.sourceView = uiView
+        
+        //uiView.inputViewController?.present(vc, animated: true)
         return uiView
     }
     
@@ -61,20 +70,26 @@ public struct TextView: UIViewRepresentable {
     }
     
     public func makeCoordinator() -> TextView.Coordinator {
-        Coordinator($attributedText, fontDesigner: fontDesigner)
+        Coordinator($attributedText, fontDesigner: fontDesigner, popover: popover)
     }
     
     public class Coordinator: NSObject, UITextViewDelegate {
         var text: Binding<AttributedString>
         var fontDesigner: FontDesigner
-        public init(_ text: Binding<AttributedString>, fontDesigner: FontDesigner ) {
+        var popover: UIPopoverPresentationController
+        public init(_ text: Binding<AttributedString>, fontDesigner: FontDesigner, popover: UIPopoverPresentationController ) {
             self.text = text
             self.fontDesigner = fontDesigner
+            self.popover = popover
         }
 
         public func textViewDidChange(_ textView: UITextView) {
             self.text.wrappedValue = textView.attributedText.attributedString
         }
+        
+//        public func textView(_ textView: UITextView, willDismissEditMenuWith animator: UIEditMenuInteractionAnimating) {
+//
+//        }
         
         public func textViewDidChangeSelection(_ textView: UITextView) {
             let selection = textView.selectedRange
@@ -84,7 +99,7 @@ public struct TextView: UIViewRepresentable {
                     let font =  value as? UIFont ?? UIFont.preferredFont(forTextStyle: .body)
                     fontDesigner.fontDescriptor = font.fontDescriptor
                     fontDesigner.fontSize = font.pointSize
-                } else {
+                } else { // or do nothing?
                     fontDesigner.fontDescriptor = UIFont.preferredFont(forTextStyle: .body).fontDescriptor
                     fontDesigner.fontSize = UIFont.preferredFont(forTextStyle: .body).pointSize
                 }
@@ -102,25 +117,42 @@ public struct TextView: UIViewRepresentable {
                 } else { fontDesigner.fontColor = CGColor.init(gray: 0, alpha: 1)  }
                 stopFlag.pointee = true
             }
+ 
+            let range = textView.selectedTextRange
+            let beginningOfSelection = textView.caretRect(for: (range?.start)!)
+            let endOfSelection = textView.caretRect(for: (range?.end)!)
+            popover.sourceRect = CGRect(x: (beginningOfSelection.origin.x + endOfSelection.origin.x)/2,
+                                        y: (beginningOfSelection.origin.y + beginningOfSelection.size.height)/2,
+                                        width: 0, height: 0)
         }
+        
     }
     
     public func changeFont(_ sender: Any?) {
-    
         fontDesigner.isPresented = true
+       
     }
     
     class MyTextView: UITextView {
-        internal init(_ changeFont: @escaping (_ : Any?) -> Void ) {
-            self.changeFont = changeFont
+        
+        internal init()  {//_ changeFont: @escaping (_ : Any?) -> Void  ) {
+            vc.modalPresentationStyle = .popover
+            popover = vc.popoverPresentationController!
             super.init(frame: .zero, textContainer: nil)
+            popover.sourceView = self
         }
 
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }
-
-        var changeFont : (_: Any?) -> Void
+        let fontDesigner = FontDesigner()
+        var vc = UIHostingController(rootView: FontDesignerView(fontDesigner: FontDesigner()))
+        let popover : UIPopoverPresentationController
+        var changeFont : ((_: Any?) -> Void)  {{ _  in
+            self.vc.present(self.vc, animated: true) {
+                // completion handler
+            }
+        }}
         
         // This works in iOS 16 but never called in 15 I believe
         open override func buildMenu(with builder: UIMenuBuilder) {
@@ -149,7 +181,10 @@ public struct TextView: UIViewRepresentable {
                 self.toggleSuperscript(action.sender)
             }
             let fontAction = UIAction(title: "Font") { action in
-                    self.changeFont(action.sender)
+                //self.changeFont(action.sender)
+                self.vc.present(self.vc, animated: true) {
+                    // completion handler
+                }
             }
             #endif
             builder.replaceChildren(ofMenu: .textStyle)  { elements in
@@ -190,6 +225,7 @@ public struct TextView: UIViewRepresentable {
             attributedText = attributedString
             if let update = delegate?.textViewDidChange { update(self) }
         }
+        
         @objc func changeFontFunc(_ sender: Any?) { self.changeFont(sender)}
         
         @objc func toggleStrikethrough(_ sender: Any?) {

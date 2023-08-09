@@ -44,7 +44,7 @@ public struct FontDesignerView: View {
                     }
                     .popover(isPresented: $fontDesigner.isFontPickerActive) {
                         SystemFontList(fontDesigner: fontDesigner)
-                    }
+                    }.onChange(of: fontDesigner.fontDescriptor) { newValue in }
                 
                 ColorPicker("Foreground color", selection: $fontDesigner.fontColor)
                 ColorPicker("Background color", selection: $fontDesigner.backgroundColor)
