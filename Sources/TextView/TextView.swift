@@ -144,10 +144,10 @@ public struct TextView: UIViewRepresentable {
             popover.sourceRect = CGRect(x: (beginningOfSelection.origin.x + endOfSelection.origin.x)/2,
                                         y: (beginningOfSelection.origin.y + beginningOfSelection.size.height)/2,
                                         width: 0, height: 0)
-            inputViewController?.present(vc, animated: true) {
-                // completion handler
-                print("Completed changeFont")
-            }
+//            inputViewController?.present(vc, animated: true) {
+//                // completion handler
+//                print("Completed changeFont")
+//            }
         }
         
         // This works in iOS 16 but never called in 15 I believe
