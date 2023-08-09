@@ -76,6 +76,6 @@ struct FontListView: UIViewControllerRepresentable {
 
 struct UIFontPickerRepresentable_Previews: PreviewProvider {
     static var previews: some View {
-        SystemFontList(fontDesigner: FontDesigner.preview)
+        SystemFontList(fontDesigner: FontDesigner.shared)
     }
 }

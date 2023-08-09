@@ -59,9 +59,9 @@ public struct FontDesignerView: View {
 
 struct FontDesignerView_Previews: PreviewProvider {
     static var previews: some View {
-        Button("Set Font") { FontDesigner().isPresented = true  }
+        Button("Set Font") { FontDesigner.shared.isPresented = true  }
             .popover(isPresented: .constant(true)) {
-                FontDesignerView(fontDesigner: FontDesigner.preview)
+                FontDesignerView(fontDesigner: FontDesigner.shared)
             }
     }
 }

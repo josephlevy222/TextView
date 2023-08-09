@@ -8,7 +8,7 @@
 
 import SwiftUI
 public struct TextViewWithPopover : View {
-    public init(attributedText: Binding<AttributedString>, allowsEditingTextAttributes: Bool = false, fontDesigner: FontDesigner = FontDesigner()) {
+    public init(attributedText: Binding<AttributedString>, allowsEditingTextAttributes: Bool = false, fontDesigner: FontDesigner = FontDesigner.shared) {
         _attributedText =  attributedText
         self.allowsEditingTextAttributes = allowsEditingTextAttributes
         _fontDesigner = StateObject(wrappedValue: fontDesigner)
@@ -29,7 +29,7 @@ public struct TextViewWithPopover : View {
 }
     
 public struct TextView: UIViewRepresentable {
-    public init(attributedText: Binding<AttributedString>, allowsEditingTextAttributes: Bool, fontDesigner: FontDesigner) {
+    public init(attributedText: Binding<AttributedString>, allowsEditingTextAttributes: Bool, fontDesigner: FontDesigner = FontDesigner.shared) {
         self._attributedText = attributedText
         self.allowsEditingTextAttributes = allowsEditingTextAttributes
         self.fontDesigner = fontDesigner
@@ -45,7 +45,7 @@ public struct TextView: UIViewRepresentable {
     let defaultFont = UIFont.preferredFont(forTextStyle: .body)
     
     public func makeUIView(context: Context) -> UITextView {
-        let uiView = MyTextView(fontDesigner: fontDesigner)// changeFont
+        let uiView = MyTextView()//fontDesigner: fontDesigner, frame: CGRect(x: 0, y: 0, width: 100, height: 100))// changeFont
         uiView.font = defaultFont
         //uiView.typingAttributes = [.font : defaultFont ]
         uiView.allowsEditingTextAttributes = allowsEditingTextAttributes
@@ -71,20 +71,15 @@ public struct TextView: UIViewRepresentable {
     public class Coordinator: NSObject, UITextViewDelegate {
         var text: Binding<AttributedString>
         var fontDesigner: FontDesigner
-        //var popover: UIPopoverPresentationController =
+        
         public init(_ text: Binding<AttributedString>, fontDesigner: FontDesigner ) {
             self.text = text
             self.fontDesigner = fontDesigner
-            //.popover = popover
         }
 
         public func textViewDidChange(_ textView: UITextView) {
             self.text.wrappedValue = textView.attributedText.attributedString
         }
-        
-//        public func textView(_ textView: UITextView, willDismissEditMenuWith animator: UIEditMenuInteractionAnimating) {
-//
-//        }
         
         public func textViewDidChangeSelection(_ textView: UITextView) {
             let selection = textView.selectedRange
@@ -117,16 +112,20 @@ public struct TextView: UIViewRepresentable {
     }
     
     class MyTextView: UITextView {
-        internal init(fontDesigner: FontDesigner) {
-            self.fontDesigner = fontDesigner
-            super.init()
-        }
+//        internal init(fontDesigner: FontDesigner, frame: CGRect) {
+//            self.fontDesigner = fontDesigner
+//            super.init(frame: frame, textContainer: nil)
+//        }
         
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
-        
-        let fontDesigner : FontDesigner
+//        override init(frame: CGRect, textContainer: NSTextContainer?) {
+//            super.init(frame: frame, textContainer: textContainer)
+//        }
+//
+//        required init?(coder: NSCoder) {
+//            fatalError("init(coder:) has not been implemented")
+//        }
+//
+        let fontDesigner = FontDesigner.shared
         lazy var vc = {
             let vc = UIHostingController(rootView: FontDesignerView(fontDesigner: fontDesigner))
             vc.modalPresentationStyle = .popover
