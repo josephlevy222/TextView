@@ -31,6 +31,7 @@ final public class FontDesigner: ObservableObject {
     @Published public var isFontPickerActive: Bool = false
     @Published public var isPresented: Bool = false
     public var textView : UITextView?
+    public var selection = NSRange()
     // MARK: - Other
     
     /// A store for all the subscriptions. So we can react on the changes
@@ -102,7 +103,7 @@ final public class FontDesigner: ObservableObject {
     private func updateTextView() {
         guard let textView else {return}
         let text = NSMutableAttributedString(attributedString: textView.attributedText)
-        var range = textView.selectedRange
+        var range = selection
         let attributes = text.attributes(at: 0, effectiveRange: &range)
         // Take care of font and size
         var newFont : UIFont
@@ -110,17 +111,17 @@ final public class FontDesigner: ObservableObject {
         let font = attributes[.font] as? UIFont
         descriptor = fontDescriptor ?? font?.fontDescriptor ?? UIFont.preferredFont(forTextStyle: .body).fontDescriptor
         newFont = UIFont(descriptor: descriptor, size: fontSize)
-        text.removeAttribute(.font, range: textView.selectedRange)
+        text.removeAttribute(.font, range: selection)
         if descriptor.symbolicTraits.intersection(.traitItalic) == .traitItalic, let font = newFont.italic() {
             newFont = UIFont(descriptor: font.fontDescriptor, size: fontSize)
         }
-        text.addAttribute(.font, value: newFont, range: textView.selectedRange)
+        text.addAttribute(.font, value: newFont, range: selection)
         // Take care of background color
-        text.removeAttribute(.backgroundColor, range: textView.selectedRange)
-        text.addAttribute(.backgroundColor, value: backgroundColor, range: textView.selectedRange)
+        text.removeAttribute(.backgroundColor, range: selection)
+        text.addAttribute(.backgroundColor, value: backgroundColor, range: selection)
         // Take care of foreground color
-        text.removeAttribute(.foregroundColor, range: textView.selectedRange)
-        text.addAttribute(.foregroundColor, value: fontColor, range: textView.selectedRange)
+        text.removeAttribute(.foregroundColor, range: selection)
+        text.addAttribute(.foregroundColor, value: fontColor, range: selection)
         textView.attributedText = text
     }
 }

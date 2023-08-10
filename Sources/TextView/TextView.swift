@@ -33,7 +33,7 @@ public struct TextView: UIViewRepresentable {
         self._attributedText = attributedText
         self.allowsEditingTextAttributes = allowsEditingTextAttributes
         self.fontDesigner = fontDesigner
-        self._attributedText = attributedText 
+        self._attributedText = attributedText
     }
     
     @ObservedObject public var fontDesigner : FontDesigner
@@ -127,12 +127,13 @@ public struct TextView: UIViewRepresentable {
         
         func changeFont(_ sender: Any?) -> Void  {
 //            let range = selectedTextRange
-//            let selection = selectedRange
+            let selection = selectedRange
 //            let beginningOfSelection = caretRect(for: (range?.start)!)
 //            let endOfSelection = caretRect(for: (range?.end)!)
 //            popover.sourceRect = CGRect(x: (beginningOfSelection.origin.x + endOfSelection.origin.x)/2,
 //                                        y: (beginningOfSelection.origin.y + beginningOfSelection.size.height)/2,
 //                                        width: 0, height: 0)
+            fontDesigner.selection = selection
             fontDesigner.textView = self
             fontDesigner.isPresented = true
         }
