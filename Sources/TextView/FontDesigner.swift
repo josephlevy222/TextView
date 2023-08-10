@@ -121,6 +121,7 @@ final public class FontDesigner: ObservableObject {
         // Take care of foreground color
         text.removeAttribute(.foregroundColor, range: textView.selectedRange)
         text.addAttribute(.foregroundColor, value: fontColor, range: textView.selectedRange)
+        textView.attributedText = text
     }
 }
 
