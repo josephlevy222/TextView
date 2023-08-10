@@ -97,8 +97,8 @@ public struct TextView: UIViewRepresentable {
             }
             textView.attributedText.enumerateAttribute(.backgroundColor, in: selection)  { (value, range, stopFlag)  in
                 if let value, range == selection {
-                    fontDesigner.backgroundColor = (value as? UIColor ?? UIColor.white) as! CGColor
-                } else { fontDesigner.backgroundColor = CGColor.init(gray: 1, alpha: 1) }
+                    fontDesigner.backgroundColor = (value as? UIColor ?? UIColor.white).cgColor
+                } else { fontDesigner.backgroundColor = UIColor.white.cgColor
                 stopFlag.pointee = true
             }
             textView.attributedText.enumerateAttribute(.foregroundColor, in: selection)  { (value, range, stopFlag)  in
