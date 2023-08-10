@@ -110,21 +110,9 @@ public struct TextView: UIViewRepresentable {
         }
         
     }
-    
+
     class MyTextView: UITextView {
-//        internal init(fontDesigner: FontDesigner, frame: CGRect) {
-//            self.fontDesigner = fontDesigner
-//            super.init(frame: frame, textContainer: nil)
-//        }
-        
-//        override init(frame: CGRect, textContainer: NSTextContainer?) {
-//            super.init(frame: frame, textContainer: textContainer)
-//        }
-//
-//        required init?(coder: NSCoder) {
-//            fatalError("init(coder:) has not been implemented")
-//        }
-//
+
         let fontDesigner = FontDesigner.shared
         lazy var vc = {
             let vc = UIHostingController(rootView: FontDesignerView(fontDesigner: fontDesigner))
@@ -144,7 +132,9 @@ public struct TextView: UIViewRepresentable {
             popover.sourceRect = CGRect(x: (beginningOfSelection.origin.x + endOfSelection.origin.x)/2,
                                         y: (beginningOfSelection.origin.y + beginningOfSelection.size.height)/2,
                                         width: 0, height: 0)
-            if let inputVC = inputViewController {
+            
+            
+            if let inputVC = super.inputViewController?.presentedViewController  {
                 inputVC.present(vc, animated: true) {
                     // completion handler
                     print("Completed changeFont")
@@ -164,28 +154,38 @@ public struct TextView: UIViewRepresentable {
             let strikethroughAction = UIAction(title: "Strikethough") { action in
                 self.toggleStrikethrough(action.sender)
             }
-            #if targetEnvironment(macCatalyst)
+            
+#if targetEnvironment(macCatalyst)
             let subscriptAction = UIAction(title: "Subscript", image: UIImage(systemName: "textformat.subscript")) { action in
                 self.toggleSubscript(action.sender)
             }
             let superscriptAction = UIAction(title: "Superscript", image: UIImage(systemName: "textformat.superscript")) { action in
                 self.toggleSuperscript(action.sender)
             }
-            #else
+#else
             let subscriptAction = UIAction(image: UIImage(systemName: "textformat.subscript")) { action in
                 self.toggleSubscript(action.sender)
             }
             let superscriptAction = UIAction(image: UIImage(systemName: "textformat.superscript")) { action in
                 self.toggleSuperscript(action.sender)
             }
-            let fontAction = UIAction(title: "Font") { action in
-                self.changeFont(action.sender)
+            
+            let fontAction = UIAction(title: "Font") { [unowned self] action in
+                //let shareVC = UIActivityViewController(activityItems: items, applicationActivities: activities)
+               // let vc = action.presentationSourceItem
+                if #available(iOS 16.0, *) {
+                    self.changeFont(action.presentationSourceItem)
+                } else {
+                    self.changeFont(action.sender)
+                }
                 
             }
-            #endif
+            
+#endif
+           
             builder.replaceChildren(ofMenu: .textStyle)  { elements in
                 var children = elements
-                #if !targetEnvironment(macCatalyst)
+#if !targetEnvironment(macCatalyst)
                 children.insert(fontAction,at: 0)
                 #endif
                 children.append(strikethroughAction)
