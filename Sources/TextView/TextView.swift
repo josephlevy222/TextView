@@ -103,8 +103,8 @@ public struct TextView: UIViewRepresentable {
             }
             textView.attributedText.enumerateAttribute(.foregroundColor, in: selection)  { (value, range, stopFlag)  in
                 if let value, range == selection {
-                    fontDesigner.fontColor = (value as? UIColor ?? UIColor.white) as! CGColor
-                } else { fontDesigner.fontColor = CGColor.init(gray: 0, alpha: 1)  }
+                    fontDesigner.fontColor = (value as? UIColor ?? UIColor.white).cgColor
+                } else { fontDesigner.fontColor = UIColor.black.cgColor
                 stopFlag.pointee = true
             }
         }
