@@ -33,7 +33,7 @@ public struct TextView: UIViewRepresentable {
         self._attributedText = attributedText
         self.allowsEditingTextAttributes = allowsEditingTextAttributes
         self.fontDesigner = fontDesigner
-        self.attributedText = attributedText.wrappedValue.convertToUIAttributes().attributedString
+        self._attributedText = attributedText 
     }
     
     @ObservedObject public var fontDesigner : FontDesigner
