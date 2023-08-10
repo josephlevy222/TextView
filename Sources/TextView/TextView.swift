@@ -84,7 +84,7 @@ public struct TextView: UIViewRepresentable {
         public func textViewDidChangeSelection(_ textView: UITextView) {
             fontDesigner.selection = textView.selectedRange
             let selection = fontDesigner.selection
-            fontDesigner.textView = textView
+            fontDesigner.textView = textView as? TextView.MyTextView
             textView.attributedText.enumerateAttribute(.font, in: selection) { (value, range, stopFlag)  in
                 if let value, range == selection {
                     // All the same font set fontDesigner font to it
@@ -113,7 +113,7 @@ public struct TextView: UIViewRepresentable {
         
     }
 
-    public class MyTextView: UITextView {
+    open class MyTextView: UITextView {
 
         let fontDesigner = FontDesigner.shared
 //        lazy var vc = {
@@ -242,7 +242,7 @@ public struct TextView: UIViewRepresentable {
             updateAttributedText(with: attributedString)
         }
         
-        @objc override func toggleUnderline(_ sender: Any?) {
+        @objc open override func toggleUnderline(_ sender: Any?) {
             let attributedString = NSMutableAttributedString(attributedString: attributedText)
             var isAllUnderlined = true
             attributedString.enumerateAttribute(.underlineStyle,
@@ -265,11 +265,11 @@ public struct TextView: UIViewRepresentable {
             updateAttributedText(with: attributedString)
         }
         
-        @objc override func toggleBoldface(_ sender: Any?) {
+        @objc open  override func toggleBoldface(_ sender: Any?) {
             toggleSymbolicTrait(sender, trait: .traitBold)
         }
         
-        @objc override func toggleItalics(_ sender: Any?) {
+        @objc open override func toggleItalics(_ sender: Any?) {
             toggleSymbolicTrait(sender, trait: .traitItalic)
         }
         
