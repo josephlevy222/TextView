@@ -113,7 +113,7 @@ public struct TextView: UIViewRepresentable {
         
     }
 
-    open class MyTextView: UITextView {
+    class MyTextView: UITextView {
 
         let fontDesigner = FontDesigner.shared
 //        lazy var vc = {
@@ -134,11 +134,37 @@ public struct TextView: UIViewRepresentable {
 //            let endOfSelection = caretRect(for: (range?.end)!)
 //            popover.sourceRect = CGRect(x: (beginningOfSelection.origin.x + endOfSelection.origin.x)/2,
 //                                        y: (beginningOfSelection.origin.y + beginningOfSelection.size.height)/2,
-//                                        width: 0, height: 0)
+            //                                        width: 0, height: 0)
             fontDesigner.selection = selection
             fontDesigner.textView = self
             fontDesigner.isPresented = true
+            while fontDesigner.isPresented {
+                
+                let text = NSMutableAttributedString(attributedString: attributedText)
+                var range = selection
+                let attributes = text.attributes(at: 0, effectiveRange: &range)
+                // Take care of font and size
+                var newFont : UIFont
+                let descriptor: UIFontDescriptor
+                let font = attributes[.font] as? UIFont
+                descriptor = fontDesigner.fontDescriptor ?? font?.fontDescriptor ?? UIFont.preferredFont(forTextStyle: .body).fontDescriptor
+                newFont = UIFont(descriptor: descriptor, size: fontDesigner.fontSize)
+                text.removeAttribute(.font, range: selection)
+                if descriptor.symbolicTraits.intersection(.traitItalic) == .traitItalic, let font = newFont.italic() {
+                    newFont = UIFont(descriptor: font.fontDescriptor, size: fontDesigner.fontSize)
+                }
+                text.addAttribute(.font, value: newFont, range: selection)
+                // Take care of background color
+                text.removeAttribute(.backgroundColor, range: selection)
+                text.addAttribute(.backgroundColor, value: fontDesigner.backgroundColor, range: selection)
+                // Take care of foreground color
+                text.removeAttribute(.foregroundColor, range: selection)
+                text.addAttribute(.foregroundColor, value: fontDesigner.fontColor, range: selection)
+                attributedText = text
+            }
+            
         }
+    }
         
         // This works in iOS 16 but never called in 15 I believe
         open override func buildMenu(with builder: UIMenuBuilder) {
@@ -220,7 +246,10 @@ public struct TextView: UIViewRepresentable {
             if let update = delegate?.textViewDidChange { update(self) }
         }
         
-        @objc func changeFontFunc(_ sender: Any?) { self.changeFont(sender)}
+        @objc func changeFontFunc(_ sender: Any?) {
+            self.changeFont(sender)
+            
+        }
         
         @objc func toggleStrikethrough(_ sender: Any?) {
             let attributedString = NSMutableAttributedString(attributedString: attributedText)
@@ -265,11 +294,11 @@ public struct TextView: UIViewRepresentable {
             updateAttributedText(with: attributedString)
         }
         
-        @objc open  override func toggleBoldface(_ sender: Any?) {
+        @objc override func toggleBoldface(_ sender: Any?) {
             toggleSymbolicTrait(sender, trait: .traitBold)
         }
         
-        @objc open override func toggleItalics(_ sender: Any?) {
+        @objc override func toggleItalics(_ sender: Any?) {
             toggleSymbolicTrait(sender, trait: .traitItalic)
         }
         
