@@ -113,19 +113,19 @@ public struct TextView: UIViewRepresentable {
         
     }
 
-    class MyTextView: UITextView {
+    public class MyTextView: UITextView {
 
         let fontDesigner = FontDesigner.shared
-        lazy var vc = {
-            let vc = UIHostingController(rootView: FontDesignerView(fontDesigner: fontDesigner))
-            vc.modalPresentationStyle = .popover
-            return vc
-        }()
-        lazy var  popover : UIPopoverPresentationController = {
-            let popover = vc.popoverPresentationController!
-            popover.sourceView = self
-            return popover
-        }()
+//        lazy var vc = {
+//            let vc = UIHostingController(rootView: FontDesignerView(fontDesigner: fontDesigner))
+//            vc.modalPresentationStyle = .popover
+//            return vc
+//        }()
+//        lazy var  popover : UIPopoverPresentationController = {
+//            let popover = vc.popoverPresentationController!
+//            popover.sourceView = self
+//            return popover
+//        }()
         
         func changeFont(_ sender: Any?) -> Void  {
 //            let range = selectedTextRange
@@ -215,7 +215,7 @@ public struct TextView: UIViewRepresentable {
             return super.canPerformAction(action, withSender: sender)
         }
         
-        private func updateAttributedText(with attributedString: NSAttributedString) {
+        public func updateAttributedText(with attributedString: NSAttributedString) {
             attributedText = attributedString
             if let update = delegate?.textViewDidChange { update(self) }
         }

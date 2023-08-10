@@ -30,7 +30,7 @@ final public class FontDesigner: ObservableObject {
     /// Indicator, if the font picker is currently visible
     @Published public var isFontPickerActive: Bool = false
     @Published public var isPresented: Bool = false
-    public var textView : UITextView?
+    public var textView : TextView.MyTextView?
     public var selection = NSRange()
     // MARK: - Other
     
@@ -122,7 +122,7 @@ final public class FontDesigner: ObservableObject {
         // Take care of foreground color
         text.removeAttribute(.foregroundColor, range: selection)
         text.addAttribute(.foregroundColor, value: fontColor, range: selection)
-        textView.attributedText = text
+        textView.updateAttributedText(with: text) 
     }
 }
 
