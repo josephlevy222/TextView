@@ -15,7 +15,7 @@ final public class FontDesigner: ObservableObject {
     @Published public var fontColor: CGColor = UIColor.label.cgColor
     @Published public var backgroundColor: CGColor = UIColor.label.cgColor
     /// The font size
-    @Published public var fontSize: CGFloat = 16
+    @Published public var fontSize: CGFloat = 17
     /// The font descriptor, if available
     @Published public var fontDescriptor: UIFontDescriptor? = nil
     
@@ -30,7 +30,7 @@ final public class FontDesigner: ObservableObject {
     /// Indicator, if the font picker is currently visible
     @Published public var isFontPickerActive: Bool = false
     @Published public var isPresented: Bool = false
-    
+    public var textView : UITextView?
     // MARK: - Other
     
     /// A store for all the subscriptions. So we can react on the changes
@@ -47,6 +47,7 @@ final public class FontDesigner: ObservableObject {
                   
                 self?.displayedFontName = "\(fontName)" 
                 self?.updatePreviewText()
+                self?.updateTextView()
                 
             }
             .store(in: &subscriptions)
@@ -56,8 +57,28 @@ final public class FontDesigner: ObservableObject {
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
                 self?.updatePreviewText()
+                self?.updateTextView()
             }
             .store(in: &subscriptions)
+        
+        $fontColor
+            .removeDuplicates()
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.updatePreviewText()
+                self?.updateTextView()
+            }
+            .store(in: &subscriptions)
+        
+        $backgroundColor
+            .removeDuplicates()
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.updatePreviewText()
+                self?.updateTextView()
+            }
+            .store(in: &subscriptions)
+        
         $isFontPickerActive
             .removeDuplicates()
             .receive(on: RunLoop.main)
@@ -76,6 +97,30 @@ final public class FontDesigner: ObservableObject {
             text.uiKit.font = UIFont.systemFont(ofSize: fontSize)
         }
         previewText = text
+    }
+    
+    private func updateTextView() {
+        guard let textView else {return}
+        let text = NSMutableAttributedString(attributedString: textView.attributedText)
+        var range = textView.selectedRange
+        let attributes = text.attributes(at: 0, effectiveRange: &range)
+        // Take care of font and size
+        var newFont : UIFont
+        let descriptor: UIFontDescriptor
+        let font = attributes[.font] as? UIFont
+        descriptor = fontDescriptor ?? font?.fontDescriptor ?? UIFont.preferredFont(forTextStyle: .body).fontDescriptor
+        newFont = UIFont(descriptor: descriptor, size: fontSize)
+        text.removeAttribute(.font, range: textView.selectedRange)
+        if descriptor.symbolicTraits.intersection(.traitItalic) == .traitItalic, let font = newFont.italic() {
+            newFont = UIFont(descriptor: font.fontDescriptor, size: fontSize)
+        }
+        text.addAttribute(.font, value: newFont, range: textView.selectedRange)
+        // Take care of background color
+        text.removeAttribute(.backgroundColor, range: textView.selectedRange)
+        text.addAttribute(.backgroundColor, value: backgroundColor, range: textView.selectedRange)
+        // Take care of foreground color
+        text.removeAttribute(.foregroundColor, range: textView.selectedRange)
+        text.addAttribute(.foregroundColor, value: fontColor, range: textView.selectedRange)
     }
 }
 

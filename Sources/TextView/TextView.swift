@@ -9,14 +9,14 @@
 import SwiftUI
 public struct TextViewWithPopover : View {
     public init(attributedText: Binding<AttributedString>, allowsEditingTextAttributes: Bool = false, fontDesigner: FontDesigner = FontDesigner.shared) {
-        _attributedText =  attributedText
+        _attributedText = attributedText
         self.allowsEditingTextAttributes = allowsEditingTextAttributes
-        _fontDesigner = StateObject(wrappedValue: fontDesigner)
+        _fontDesigner = .init(wrappedValue: fontDesigner)
     }
-    
+
     @Binding public var attributedText: AttributedString
     public var allowsEditingTextAttributes = false
-    @StateObject public var fontDesigner : FontDesigner
+    @ObservedObject public var fontDesigner : FontDesigner = FontDesigner.shared
     public var body: some View {
         TextView(attributedText: $attributedText, allowsEditingTextAttributes: allowsEditingTextAttributes, fontDesigner: fontDesigner)
             .popover(isPresented: $fontDesigner.isPresented) {
@@ -126,20 +126,14 @@ public struct TextView: UIViewRepresentable {
         }()
         
         func changeFont(_ sender: Any?) -> Void  {
-            let range = selectedTextRange
-            let beginningOfSelection = caretRect(for: (range?.start)!)
-            let endOfSelection = caretRect(for: (range?.end)!)
-            popover.sourceRect = CGRect(x: (beginningOfSelection.origin.x + endOfSelection.origin.x)/2,
-                                        y: (beginningOfSelection.origin.y + beginningOfSelection.size.height)/2,
-                                        width: 0, height: 0)
-            
-            
-            if let inputVC = super.inputViewController?.presentedViewController  {
-                inputVC.present(vc, animated: true) {
-                    // completion handler
-                    print("Completed changeFont")
-                }
-            } else { print("inputVC is nil")}
+//            let range = selectedTextRange
+//            let selection = selectedRange
+//            let beginningOfSelection = caretRect(for: (range?.start)!)
+//            let endOfSelection = caretRect(for: (range?.end)!)
+//            popover.sourceRect = CGRect(x: (beginningOfSelection.origin.x + endOfSelection.origin.x)/2,
+//                                        y: (beginningOfSelection.origin.y + beginningOfSelection.size.height)/2,
+//                                        width: 0, height: 0)
+            fontDesigner.isPresented = true
         }
         
         // This works in iOS 16 but never called in 15 I believe
@@ -313,9 +307,8 @@ public struct TextView: UIViewRepresentable {
             var isAllScript = true
             attributedString.enumerateAttributes(in: selectedRange,
                                                  options: []) { (attributes, range, stopFlag) in
-                //let offset = attributes[.baselineOffset]
-                let isNotOffset = (attributes[.baselineOffset] as? CGFloat ?? 0.0) == 0.0
-                if isNotOffset { //  normal
+                let offset = attributes[.baselineOffset] as? CGFloat ?? 0.0
+                if offset == 0.0 { //  normal
                     isAllScript = false
                 } else { // its super or subscript so set to normal
                     // Enlarge font and remove baselineOffset
@@ -343,7 +336,6 @@ public struct TextView: UIViewRepresentable {
                         attributedString.addAttribute(.baselineOffset, value: newOffset*descriptor.pointSize,
                                                       range: range)
                         newFont = UIFont(descriptor: descriptor, size: 0.75*descriptor.pointSize)
-                        
                     }
                     if descriptor.symbolicTraits.intersection(.traitItalic) == .traitItalic, let font = newFont.italic() {
                         newFont = font
