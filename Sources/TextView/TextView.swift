@@ -82,7 +82,9 @@ public struct TextView: UIViewRepresentable {
         }
         
         public func textViewDidChangeSelection(_ textView: UITextView) {
-            let selection = textView.selectedRange
+            fontDesigner.selection = textView.selectedRange
+            let selection = fontDesigner.selection
+            fontDesigner.textView = textView
             textView.attributedText.enumerateAttribute(.font, in: selection) { (value, range, stopFlag)  in
                 if let value, range == selection {
                     // All the same font set fontDesigner font to it
