@@ -13,7 +13,7 @@ public struct TextViewWithPopover : View {
         self.allowsEditingTextAttributes = allowsEditingTextAttributes
         _fontDesigner = .init(wrappedValue: fontDesigner)
     }
-
+    
     @Binding public var attributedText: AttributedString
     public var allowsEditingTextAttributes = false
     @ObservedObject public var fontDesigner : FontDesigner = FontDesigner.shared
@@ -27,7 +27,7 @@ public struct TextViewWithPopover : View {
             }
     }
 }
-    
+
 public struct TextView: UIViewRepresentable {
     public init(attributedText: Binding<AttributedString>, allowsEditingTextAttributes: Bool, fontDesigner: FontDesigner = FontDesigner.shared) {
         self._attributedText = attributedText
@@ -37,10 +37,10 @@ public struct TextView: UIViewRepresentable {
     }
     
     @ObservedObject public var fontDesigner : FontDesigner
-
+    
     //debugPrint(String(returnValue[run.range].characters))
     @Binding public var attributedText: AttributedString
-    public var allowsEditingTextAttributes: Bool 
+    public var allowsEditingTextAttributes: Bool
     
     let defaultFont = UIFont.preferredFont(forTextStyle: .body)
     
@@ -56,7 +56,7 @@ public struct TextView: UIViewRepresentable {
         //uiView.usesStandardTextScaling = true
         uiView.delegate = context.coordinator
         uiView.attributedText = attributedText.nsAttributedString
-
+        
         return uiView
     }
     
@@ -76,7 +76,7 @@ public struct TextView: UIViewRepresentable {
             self.text = text
             self.fontDesigner = fontDesigner
         }
-
+        
         public func textViewDidChange(_ textView: UITextView) {
             self.text.wrappedValue = textView.attributedText.attributedString
         }
@@ -84,7 +84,7 @@ public struct TextView: UIViewRepresentable {
         public func textViewDidChangeSelection(_ textView: UITextView) {
             fontDesigner.selection = textView.selectedRange
             let selection = fontDesigner.selection
-            fontDesigner.textView = textView as? TextView.MyTextView
+            //fontDesigner.textView = textView as? TextView.MyTextView
             textView.attributedText.enumerateAttribute(.font, in: selection) { (value, range, stopFlag)  in
                 if let value, range == selection {
                     // All the same font set fontDesigner font to it
@@ -112,28 +112,27 @@ public struct TextView: UIViewRepresentable {
         }
         
     }
-
     class MyTextView: UITextView {
-
+        
         let fontDesigner = FontDesigner.shared
-//        lazy var vc = {
-//            let vc = UIHostingController(rootView: FontDesignerView(fontDesigner: fontDesigner))
-//            vc.modalPresentationStyle = .popover
-//            return vc
-//        }()
-//        lazy var  popover : UIPopoverPresentationController = {
-//            let popover = vc.popoverPresentationController!
-//            popover.sourceView = self
-//            return popover
-//        }()
+        //        lazy var vc = {
+        //            let vc = UIHostingController(rootView: FontDesignerView(fontDesigner: fontDesigner))
+        //            vc.modalPresentationStyle = .popover
+        //            return vc
+        //        }()
+        //        lazy var  popover : UIPopoverPresentationController = {
+        //            let popover = vc.popoverPresentationController!
+        //            popover.sourceView = self
+        //            return popover
+        //        }()
         
         func changeFont(_ sender: Any?) -> Void  {
-//            let range = selectedTextRange
+            //            let range = selectedTextRange
             let selection = selectedRange
-//            let beginningOfSelection = caretRect(for: (range?.start)!)
-//            let endOfSelection = caretRect(for: (range?.end)!)
-//            popover.sourceRect = CGRect(x: (beginningOfSelection.origin.x + endOfSelection.origin.x)/2,
-//                                        y: (beginningOfSelection.origin.y + beginningOfSelection.size.height)/2,
+            //            let beginningOfSelection = caretRect(for: (range?.start)!)
+            //            let endOfSelection = caretRect(for: (range?.end)!)
+            //            popover.sourceRect = CGRect(x: (beginningOfSelection.origin.x + endOfSelection.origin.x)/2,
+            //                                        y: (beginningOfSelection.origin.y + beginningOfSelection.size.height)/2,
             //                                        width: 0, height: 0)
             fontDesigner.selection = selection
             fontDesigner.textView = self
@@ -162,9 +161,8 @@ public struct TextView: UIViewRepresentable {
                 text.addAttribute(.foregroundColor, value: fontDesigner.fontColor, range: selection)
                 attributedText = text
             }
-            
         }
-    }
+        
         
         // This works in iOS 16 but never called in 15 I believe
         open override func buildMenu(with builder: UIMenuBuilder) {
@@ -174,7 +172,7 @@ public struct TextView: UIViewRepresentable {
             builder.remove(menu: .share) // Remove Share
             //builder.remove(menu: .textStyle) // Keep Format
             // Add new .textStyle actions
-    
+            
             let strikethroughAction = UIAction(title: "Strikethough") { action in
                 self.toggleStrikethrough(action.sender)
             }
@@ -196,7 +194,7 @@ public struct TextView: UIViewRepresentable {
             
             let fontAction = UIAction(title: "Font") { [unowned self] action in
                 //let shareVC = UIActivityViewController(activityItems: items, applicationActivities: activities)
-               // let vc = action.presentationSourceItem
+                // let vc = action.presentationSourceItem
                 if #available(iOS 16.0, *) {
                     self.changeFont(action.presentationSourceItem)
                 } else {
@@ -204,14 +202,12 @@ public struct TextView: UIViewRepresentable {
                 }
                 
             }
-            
 #endif
-           
             builder.replaceChildren(ofMenu: .textStyle)  { elements in
                 var children = elements
 #if !targetEnvironment(macCatalyst)
                 children.insert(fontAction,at: 0)
-                #endif
+#endif
                 children.append(strikethroughAction)
                 children.append(subscriptAction)
                 children.append(superscriptAction)
