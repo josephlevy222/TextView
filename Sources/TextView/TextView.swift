@@ -19,7 +19,7 @@ public struct TextViewWithPopover : View {
     @ObservedObject public var fontDesigner : FontDesigner = FontDesigner.shared
     public var body: some View {
         TextView(attributedText: $attributedText, allowsEditingTextAttributes: allowsEditingTextAttributes, fontDesigner: fontDesigner)
-            .popover(isPresented: $fontDesigner.isPresented) {
+            .iOSPopover(isPresented: $fontDesigner.isPresented, arrowDirection: .any) {
                 let _ = print("Font Design Shown")
                 FontDesignerView(fontDesigner: fontDesigner).onDisappear {
                     print("Font Designer Disappeared")
@@ -45,9 +45,9 @@ public struct TextView: UIViewRepresentable {
     let defaultFont = UIFont.preferredFont(forTextStyle: .body)
     
     public func makeUIView(context: Context) -> UITextView {
-        let uiView = MyTextView()//fontDesigner: fontDesigner, frame: CGRect(x: 0, y: 0, width: 100, height: 100))// changeFont
+        let uiView = MyTextView()
         uiView.font = defaultFont
-        //uiView.typingAttributes = [.font : defaultFont ]
+        uiView.typingAttributes = [.font : defaultFont ]
         uiView.allowsEditingTextAttributes = allowsEditingTextAttributes
         uiView.textContainerInset = .zero
         uiView.contentInset = UIEdgeInsets()
@@ -115,29 +115,34 @@ public struct TextView: UIViewRepresentable {
     class MyTextView: UITextView {
         
         let fontDesigner = FontDesigner.shared
-        //        lazy var vc = {
-        //            let vc = UIHostingController(rootView: FontDesignerView(fontDesigner: fontDesigner))
-        //            vc.modalPresentationStyle = .popover
-        //            return vc
-        //        }()
-        //        lazy var  popover : UIPopoverPresentationController = {
-        //            let popover = vc.popoverPresentationController!
-        //            popover.sourceView = self
-        //            return popover
-        //        }()
+        lazy var isPresented = Binding(get: { self.fontDesigner.isPresented }, set: {self.fontDesigner.isPresented = $0})
+        lazy var vc = {
+            let vc = UIHostingController(rootView: FontDesignerView(fontDesigner: fontDesigner))
+            vc.modalPresentationStyle = .popover
+            return vc
+        }()
+        lazy var poc = PopOverController(isPresented: isPresented, arrowDirection: .any, content:
+            FontDesignerView(fontDesigner: fontDesigner) )
+        lazy var  popover : UIPopoverPresentationController = {
+            vc.popoverPresentationController!
+        }()
         
         func changeFont(_ sender: Any?) -> Void  {
-            //            let range = selectedTextRange
+            let textRange = selectedTextRange
             let selection = selectedRange
-            //            let beginningOfSelection = caretRect(for: (range?.start)!)
-            //            let endOfSelection = caretRect(for: (range?.end)!)
+            //let beginningOfSelection = caretRect(for: (textRange?.start)!)
+            let selectionRect : CGRect
+            if let textRange { selectionRect = firstRect(for: textRange)} else { selectionRect = .zero }
+            //let endOfSelection = caretRect(for: (textRange?.end)!)
             //            popover.sourceRect = CGRect(x: (beginningOfSelection.origin.x + endOfSelection.origin.x)/2,
             //                                        y: (beginningOfSelection.origin.y + beginningOfSelection.size.height)/2,
             //                                        width: 0, height: 0)
+            
+            popover.sourceRect = selectionRect
             fontDesigner.selection = selection
             fontDesigner.textView = self
             fontDesigner.isPresented = true
-            while fontDesigner.isPresented {
+        
                 
                 let text = NSMutableAttributedString(attributedString: attributedText)
                 var range = selection
@@ -160,7 +165,7 @@ public struct TextView: UIViewRepresentable {
                 text.removeAttribute(.foregroundColor, range: selection)
                 text.addAttribute(.foregroundColor, value: fontDesigner.fontColor, range: selection)
                 attributedText = text
-            }
+           
         }
         
         
@@ -193,24 +198,20 @@ public struct TextView: UIViewRepresentable {
             }
             
             let fontAction = UIAction(title: "Font") { [unowned self] action in
-                //let shareVC = UIActivityViewController(activityItems: items, applicationActivities: activities)
-                // let vc = action.presentationSourceItem
-                if #available(iOS 16.0, *) {
-                    self.changeFont(action.presentationSourceItem)
-                } else {
-                    self.changeFont(action.sender)
-                }
-                
+                self.changeFont(action.sender)
             }
 #endif
             builder.replaceChildren(ofMenu: .textStyle)  { elements in
                 var children = elements
+                print("children", children)
+                if children.isEmpty { return children }
 #if !targetEnvironment(macCatalyst)
                 children.insert(fontAction,at: 0)
 #endif
                 children.append(strikethroughAction)
                 children.append(subscriptAction)
                 children.append(superscriptAction)
+                print("New children", children)
                 return children
             }
             super.buildMenu(with: builder)
@@ -239,7 +240,9 @@ public struct TextView: UIViewRepresentable {
         
         public func updateAttributedText(with attributedString: NSAttributedString) {
             attributedText = attributedString
-            if let update = delegate?.textViewDidChange { update(self) }
+            print("delegate: \(String(describing: delegate))")
+            if let update = delegate?.textViewDidChange {
+                update(self) }
         }
         
         @objc func changeFontFunc(_ sender: Any?) {
@@ -284,7 +287,7 @@ public struct TextView: UIViewRepresentable {
                 attributedString.removeAttribute(.underlineStyle, range: selectedRange)
             } else {
                 attributedString.addAttribute(.underlineStyle,
-                                              value: 1,
+                                              value: NSUnderlineStyle.single.rawValue,
                                               range: selectedRange)
             }
             updateAttributedText(with: attributedString)

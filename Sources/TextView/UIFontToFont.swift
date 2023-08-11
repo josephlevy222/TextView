@@ -1,14 +1,5 @@
 //
-//  File.swift
-//  
-//
-//  Created by Joseph Levy on 6/14/23.
-//
-
-import Foundation
-//
-//  UIFontToFont.swift
-//  TextView
+//  UIFontToFont rename of FontToUIFont.swift in RichTextField
 //
 //  Created by Joseph Levy on 1/31/23.
 //
@@ -24,18 +15,27 @@ extension UIFont {
 }
 
 extension NSAttributedString {
-    public var attributedString : AttributedString {
+    public var attributedString : AttributedString { AttributedString(self) }
+    public var uiFontAttributedString : AttributedString {
         let attributedText = self
         var returnValue = {
             do { return try AttributedString(attributedText, including: \.uiKit) }
-            catch { return AttributedString(attributedText)}
+            catch {
+                print("\\.uiKet include failed")
+                return AttributedString(attributedText)
+            }
         }()
         for run in returnValue.runs {
             let nsAttributes = NSAttributedString(AttributedString(returnValue[run.range]))
                 .attributes(at: 0, effectiveRange: nil)
             if let uiFont = nsAttributes[.font] as? UIFont {
-                returnValue[run.range].font = nil
                 returnValue[run.range].font = uiFont
+            }
+            if let underline = nsAttributes[.underlineStyle] as? NSUnderlineStyle {
+                returnValue[run.range].underlineStyle = .init(nsUnderlineStyle: underline)
+            }
+            if let background = nsAttributes[.backgroundColor] as? UIColor {
+                returnValue[run.range].backgroundColor = .init(uiColor: background)
             }
         }
         return returnValue
@@ -47,17 +47,20 @@ extension AttributedString {
     public var nsAttributedString : NSAttributedString { convertToUIAttributes() }
     
     public func convertToUIAttributes(traitCollection: UITraitCollection? = nil) -> NSMutableAttributedString {
-        let nsAttributedString = NSMutableAttributedString(self)
+        let nsAttributedString = NSMutableAttributedString()
+        var runNumber = 0
         for run in runs {
-            let nsRange = NSRange(run.range, in: self[run.range])
+            runNumber += 1; print("Run: ",runNumber)
             // Get NSAttributes
-            var nsAttributes = NSMutableAttributedString(AttributedString(self[run.range]))
-                .attributes(at: 0, effectiveRange: nil)
+            let nsText = NSAttributedString(AttributedString(self[run.range]))
+            var nsAttributes = nsText.attributes(at: 0, effectiveRange: nil)
+            let nsAttributedText = NSMutableAttributedString(AttributedString(self[run.range].characters))
             // Handle font  /// A property for accessing a font attribute.
             if let font = run.font { // SwiftUI Font exists
                 if let uiFont = resolveFont(font)?.font(with: traitCollection) {
                     nsAttributes[.font] = uiFont // add font
                 }  else { // Already UIFont or default
+                    print("font not resolved",font)
                     if nsAttributes[.font] == nil {
                         nsAttributes[.font] = UIFont.preferredFont(forTextStyle: .body, compatibleWith: traitCollection)}
                 }
@@ -66,7 +69,7 @@ extension AttributedString {
             // foregroundColor /// A property for accessing a foreground color attribute.
             if let color = run.foregroundColor, color != nsAttributes[.foregroundColor] as? Color {
                 nsAttributes[.foregroundColor] = UIColor(color)
-            }
+            } else { if nsAttributes[.foregroundColor] == nil { nsAttributes[.foregroundColor] = UIColor.label }}
             // backgroundColor /// A property for accessing a background color attribute.
             if let color = run.backgroundColor, color != nsAttributes[.backgroundColor] as? Color {
                 nsAttributes[.backgroundColor] = UIColor(color)
@@ -79,21 +82,30 @@ extension AttributedString {
             // underlineStyle /// A property for accessing an underline style attribute.
             if let underlineStyle = run.underlineStyle {
                 if nsAttributes[.underlineStyle] == nil {
+                    //nsText.removeAttribute(.underlineStyle, range: NSRange(location: 0, length: nsText.length))
                     nsAttributes[.underlineStyle] =  underlineStyle }
             }
             // kern /// A property for accessing a kerning attribute.
-            if let kern = run.kern { nsAttributes[.kern] = kern }
-            // tracking /// A property for accessing a tracking attribute.
-            if  let tracking = run.tracking { nsAttributes[.tracking] = tracking }
-            // baselineOffset /// A property for accessing a baseline offset attribute.
-            if let baselineOffset = run.baselineOffset { nsAttributes[.baselineOffset] = baselineOffset }
-            if !nsAttributes.isEmpty {
-                nsAttributedString.setAttributes(nsAttributes, range: nsRange)
+            if let kern = run.kern {
+                nsAttributes[.kern] = kern
             }
+            // tracking /// A property for accessing a tracking attribute.
+            if  let tracking = run.tracking {
+                nsAttributes[.tracking] = tracking
+            }
+            // baselineOffset /// A property for accessing a baseline offset attribute.
+            if let baselineOffset = run.baselineOffset {
+                nsAttributes[.baselineOffset] = baselineOffset
+            }
+            if !nsAttributes.isEmpty {
+                nsAttributedText.setAttributes(nsAttributes, range: NSRange(location: 0, length: nsAttributedText.length))
+            }
+            nsAttributedString.append(nsAttributedText)
         }
         return nsAttributedString
     }
 }
+
 
 /// AttributedString(styledMarkdown: String, fonts: [Font]) puts fonts into Headers 1-6
 /// and setFont for SwiftUI.Font, along with setBold, and setItalic that work with SwiftUI.Font and UIFont
@@ -101,8 +113,8 @@ extension AttributedString {
 public let defaultHeaderFonts: [Font.TextStyle] = [.body,.largeTitle,.title,.title2,.title3,.headline,.subheadline]
 extension AttributedString {
     public init(styledMarkdown markdownString: String,
-         fontStyles: [Font.TextStyle] = defaultHeaderFonts,
-         insertCR: Bool = true) throws {
+                fontStyles: [Font.TextStyle] = defaultHeaderFonts,
+                insertCR: Bool = true) throws {
         var output = try AttributedString(
             markdown: markdownString,
             options: .init(
@@ -161,45 +173,6 @@ extension AttributedString {
     }
     
     public func setItalic() -> AttributedString { //Still setItalic
-        var newAS = self
-        for run in runs {
-            if let uiFont = NSAttributedString(AttributedString(self[run.range]))
-                .attributes(at: 0, effectiveRange: nil)[.font] as? UIFont  {
-                newAS[run.range].font = nil
-                newAS[run.range].font = uiFont.italic() }
-            else {
-                if let font = run.font {
-                    if let uiFont = resolveFont(font)?.font(with: nil) {
-                        newAS[run.range].font = nil
-                        newAS[run.range].font = uiFont.italic() ?? uiFont // add font
-                    } else { newAS[run.range].font = font.italic() }
-                }
-            }
-        }
-        return newAS
-    }
-    
-    
-    public func resetBold() -> AttributedString { //Still setBold
-        var newAS = self
-        for run in runs {
-            if let uiFont = NSAttributedString(AttributedString(self[run.range]))
-                .attributes(at: 0, effectiveRange: nil)[.font] as? UIFont  {
-                newAS[run.range].font = nil // just in case Font is still there
-                newAS[run.range].font = uiFont.bold() }
-            else {
-                if let font = run.font {
-                    if let uiFont = resolveFont(font)?.font(with: nil) {
-                        newAS[run.range].font = nil // erase SwiftUI.Font
-                        newAS[run.range].font = uiFont.bold() ?? uiFont // add font
-                    } else { newAS[run.range].font = font.bold() }
-                }
-            }
-        }
-        return newAS
-    }
-    
-    public func resetItalic() -> AttributedString {
         var newAS = self
         for run in runs {
             if let uiFont = NSAttributedString(AttributedString(self[run.range]))
@@ -364,6 +337,13 @@ struct TextStyleProvider: FontProvider {
         return uiFont.fontDescriptor
     }
 }
+
+struct PlatformFontProvider: FontProvider {
+    var uiFont: UIFont
+    func fontDescriptor(with traitCollection: UITraitCollection?) -> UIFontDescriptor {
+        uiFont.fontDescriptor
+    }
+}
 // The ModifierProvider holds a a reference to another FontProvider and a value
 struct ModifierProvider<M: FontValueModifier> : FontProvider {
     var base: FontProvider
@@ -441,6 +421,10 @@ func resolveFontProvider(_ provider: Any) -> FontProvider? {
     let providerType = String(describing: type(of: provider))
     switch providerType {
         
+    case "PlatformFontProvider":
+        guard let base = mirror.descendant("font") as? UIFont else { return nil }
+        return PlatformFontProvider(uiFont: base)
+        
     case "StaticModifierProvider<ItalicModifier>":
         guard let base = mirror.descendant("base", "provider", "base") else { return nil }
         return resolveFontProvider(base).map(StaticModifierProvider<ItalicModifier>.init)
@@ -486,11 +470,12 @@ func resolveFontProvider(_ provider: Any) -> FontProvider? {
         }
         return resolveFontProvider(base).map {base in ModifierProvider<WidthModifier>(base: base, value: width as! CGFloat) }
         
-        // Not exhaustive, more providers need to be handled here.
+        // Not exhaustive, more providers may need to be handled here.
     default:
-        // Maybe it is already a UIFont
-        print("Default case")
-        // if its a UIFont the FontProvider needs to reflect that
+        // Unhandled providerType
+        print("Default case for provider:", providerType)
+        dump(provider)
+        // use this dump to add another FontProvider
         return nil
     }
 }

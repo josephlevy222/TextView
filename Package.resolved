@@ -1,0 +1,23 @@
+{
+  "pins" : [
+    {
+      "identity" : "utilities",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/josephlevy222/Utilities.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "20a2fd79d0568fd29c3ea7dc62bde248b50b9b0b"
+      }
+    },
+    {
+      "identity" : "viewextractor",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/GeorgeElsham/ViewExtractor.git",
+      "state" : {
+        "revision" : "e20b1944524d4454c2a65c0054ce345c2c5d0185",
+        "version" : "2.0.0"
+      }
+    }
+  ],
+  "version" : 2
+}
